@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "compressed_copper:block/machine_core",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "compressed_copper:block/machine_core"
+    },
+    "facing=south": {
+      "model": "compressed_copper:block/machine_core",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "compressed_copper:block/machine_core",
+      "y": 270
+    }
+  }
+}
