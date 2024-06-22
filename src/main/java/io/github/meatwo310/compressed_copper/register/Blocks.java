@@ -1,6 +1,7 @@
 package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.block.MachineCore;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -18,7 +19,7 @@ public class Blocks {
 
     static {
         add("machine_core",
-                () -> new Block(BlockBehaviour.Properties.of()),
+                () -> new MachineCore(BlockBehaviour.Properties.of()),
                 () -> new BlockItem(BLOCK_MAP.get("machine_core").get(), new BlockItem.Properties())
         );
     }
