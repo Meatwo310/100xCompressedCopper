@@ -2,7 +2,6 @@ package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
