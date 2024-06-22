@@ -117,11 +117,15 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    flatDir {
-        dir 'libs'
-    }
+//    flatDir {
+//        dir 'libs'
+//    }
     maven {
         url "https://cursemaven.com"
+    }
+    maven {
+        url "https://jitpack.io"
+        content { includeGroup "com.github.yukkukomei" }
     }
 }
 
@@ -145,7 +149,8 @@ dependencies {
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-    implementation fg.deobf("blank:100xCompressedBlock:1.1.1")
+//    implementation fg.deobf("blank:100xCompressedBlock:1.1.1")
+    implementation fg.deobf("com.github.yukkukomei:100xCompressedBlock:${allcompressedblock_version}")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
