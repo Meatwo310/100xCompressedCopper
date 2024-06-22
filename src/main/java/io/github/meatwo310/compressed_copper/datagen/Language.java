@@ -1,6 +1,8 @@
 package io.github.meatwo310.compressed_copper.datagen;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.register.Blocks;
+import io.github.meatwo310.compressed_copper.register.CreativeModeTabs;
 import io.github.meatwo310.compressed_copper.register.Items;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -20,7 +22,9 @@ public class Language {
 
         @Override
         protected void addTranslations() {
-            this.addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "Compressed Copper");
+            add(CreativeModeTabs.COMPRESSED_COPPER_TAB_ID, "Compressed Copper");
+            addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "Compressed Copper");
+            addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "Machine Core");
         }
     }
 
@@ -31,7 +35,8 @@ public class Language {
 
         @Override
         protected void addTranslations() {
-            this.addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "圧縮銅");
+            addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "圧縮銅");
+            addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "マシンコア");
         }
     }
 }

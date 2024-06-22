@@ -1,3 +1,5 @@
 {
-  "item.compressed_copper.compressed_copper": "Compressed Copper"
+  "block.compressed_copper.machine_core": "Machine Core",
+  "item.compressed_copper.compressed_copper": "Compressed Copper",
+  "item_group.compressed_copper.general": "Compressed Copper"
 }
