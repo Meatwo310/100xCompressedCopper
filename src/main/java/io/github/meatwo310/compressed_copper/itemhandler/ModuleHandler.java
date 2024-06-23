@@ -13,6 +13,6 @@ public class ModuleHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return stack.is(Items.ITEM_MAP.get("test_module_1").get());
+        return stack.is(Items.TEST_MODULE_1.get());
     }
 }

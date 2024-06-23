@@ -15,23 +15,23 @@ public class Items {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CompressedCopper.MODID);
     public static final HashMap<String, RegistryObject<Item>> ITEM_MAP = new HashMap<>();
 
-    static {
-        add("compressed_copper",
-                () -> new Item(new Item.Properties())
-        );
-        add("machine_casing_1",
-                () -> new Item(new Item.Properties())
-        );
-        add("test_module_1",
-                () -> new Item(new Item.Properties())
-        );
+    public static final RegistryObject<Item> COMPRESSED_COPPER = add("compressed_copper",
+            () -> new Item(new Item.Properties())
+    );
+    public static final RegistryObject<Item> MACHINE_CASING_1 = add("machine_casing_1",
+            () -> new Item(new Item.Properties())
+    );
+    public static final RegistryObject<Item> TEST_MODULE_1 = add("test_module_1",
+            () -> new Item(new Item.Properties())
+    );
+
+    private static RegistryObject<Item> add(String name, Supplier<Item> itemSupplier) {
+        RegistryObject<Item> item = ITEMS.register(name, itemSupplier);
+        ITEM_MAP.put(name, item);
+        return item;
     }
 
-    private static void add(String name, Supplier<Item> itemSupplier) {
-        ITEM_MAP.put(name, ITEMS.register(name, itemSupplier));
-    }
-
-    public static void addBlockItem(String name, Supplier<BlockItem> blockItemSupplier) {
+    protected static void addBlockItem(String name, Supplier<BlockItem> blockItemSupplier) {
         ITEM_MAP.put(name, ITEMS.register(name, blockItemSupplier));
     }
 

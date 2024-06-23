@@ -13,7 +13,7 @@ public class CreativeModeTabs {
     public static final String COMPRESSED_COPPER_TAB_ID = "item_group." + CompressedCopper.MODID + ".general";
     public static final RegistryObject<CreativeModeTab> COMPRESSED_COPPER_TAB = CREATIVE_MODE_TABS.register(COMPRESSED_COPPER_TAB_ID, () -> CreativeModeTab.builder()
             .title(Component.translatable(COMPRESSED_COPPER_TAB_ID))
-            .icon(() -> Items.ITEM_MAP.get("compressed_copper").get().getDefaultInstance())
+            .icon(() -> Items.COMPRESSED_COPPER.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 Items.ITEM_MAP.forEach((name, item) -> output.accept(item.get()));
             })

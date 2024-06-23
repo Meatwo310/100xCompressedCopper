@@ -11,12 +11,13 @@ import net.minecraftforge.registries.RegistryObject;
 public class TileEntities {
     public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITY_TYPES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, CompressedCopper.MODID);
+
     @SuppressWarnings("DataFlowIssue")
     public static final RegistryObject<BlockEntityType<MachineCoreTile>> MACHINE_CORE =
             TILE_ENTITY_TYPES.register("machine_core",
                 () -> BlockEntityType.Builder.of(
                         MachineCoreTile::new,
-                        Blocks.BLOCK_MAP.get("machine_core").get()
+                        Blocks.MACHINE_CORE.get()
                 ).build(null)
             );
 

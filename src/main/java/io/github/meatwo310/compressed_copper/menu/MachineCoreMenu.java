@@ -85,6 +85,6 @@ public class MachineCoreMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(this.containerLevelAccess, player, Blocks.BLOCK_MAP.get("machine_core").get());
+        return stillValid(this.containerLevelAccess, player, Blocks.MACHINE_CORE.get());
     }
 }

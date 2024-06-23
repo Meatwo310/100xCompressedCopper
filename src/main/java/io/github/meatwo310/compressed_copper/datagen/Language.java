@@ -24,10 +24,10 @@ public class Language {
         protected void addTranslations() {
             add(CreativeModeTabs.COMPRESSED_COPPER_TAB_ID, "Compressed Copper");
             add("container." + CompressedCopper.MODID + ".machine_core", "Machine Core");
-            addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "Compressed Copper");
-            addItem(() -> Items.ITEM_MAP.get("machine_casing_1").get(), "1x Machine Casing");
-            addItem(() -> Items.ITEM_MAP.get("test_module_1").get(), "Test Module");
-            addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "Machine Core");
+            addItem(Items.COMPRESSED_COPPER, "Compressed Copper");
+            addItem(Items.MACHINE_CASING_1, "1x Machine Casing");
+            addItem(Items.TEST_MODULE_1, "Test Module");
+            addBlock(Blocks.MACHINE_CORE, "Machine Core");
         }
     }
 
@@ -39,10 +39,10 @@ public class Language {
         @Override
         protected void addTranslations() {
             add("container." + CompressedCopper.MODID + ".machine_core", "マシンコア");
-            addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "圧縮銅");
-            addItem(() -> Items.ITEM_MAP.get("machine_casing_1").get(), "1倍マシンケーシング");
-            addItem(() -> Items.ITEM_MAP.get("test_module_1").get(), "1倍テストモジュール");
-            addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "マシンコア");
+            addItem(Items.COMPRESSED_COPPER, "圧縮銅");
+            addItem(Items.MACHINE_CASING_1, "1倍マシンケーシング");
+            addItem(Items.TEST_MODULE_1, "1倍テストモジュール");
+            addBlock(Blocks.MACHINE_CORE, "マシンコア");
         }
     }
 }

@@ -17,17 +17,16 @@ public class Blocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CompressedCopper.MODID);
     public static final HashMap<String, RegistryObject<Block>> BLOCK_MAP = new HashMap<>();
 
-    static {
-        add("machine_core",
-                () -> new MachineCore(BlockBehaviour.Properties.of()),
-                () -> new BlockItem(BLOCK_MAP.get("machine_core").get(), new BlockItem.Properties())
-        );
-    }
+    public static final RegistryObject<Block> MACHINE_CORE = add("machine_core",
+            () -> new MachineCore(BlockBehaviour.Properties.of()),
+            () -> new BlockItem(Blocks.MACHINE_CORE.get(), new BlockItem.Properties())
+    );
 
-    public static void add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier) {
-        BLOCK_MAP.put(name, BLOCKS.register(name, blockSupplier));
+    private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier) {
+        RegistryObject<Block> block = BLOCKS.register(name, blockSupplier);
+        BLOCK_MAP.put(name, block);
         Items.addBlockItem(name, blockItemSupplier);
-
+        return block;
     }
 
     public static void register(IEventBus modEventBus) {
