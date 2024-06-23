@@ -1,5 +1,8 @@
 {
   "block.compressed_copper.machine_core": "Machine Core",
+  "container.compressed_copper.machine_core": "Machine Core",
   "item.compressed_copper.compressed_copper": "Compressed Copper",
+  "item.compressed_copper.machine_casing_1": "1x Machine Casing",
+  "item.compressed_copper.test_module_1": "Test Module",
   "item_group.compressed_copper.general": "Compressed Copper"
 }
