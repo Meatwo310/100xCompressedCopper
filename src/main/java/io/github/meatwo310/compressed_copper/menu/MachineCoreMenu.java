@@ -19,15 +19,13 @@ public class MachineCoreMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess containerLevelAccess;
 
     // Client
-    public MachineCoreMenu(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(id, playerInventory, playerInventory.player.level().getBlockEntity(buffer.readBlockPos()));
+    public MachineCoreMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
+        this(containerId, playerInventory, playerInventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     // Server
     public MachineCoreMenu(int id, Inventory playerInventory, BlockEntity blockEntity) {
         super(Menus.MACHINE_CORE_MENU.get(), id);
-//        this.machineCoreTile = (MachineCoreTile) blockEntity;
-//        this.containerLevelAccess = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
         if (blockEntity instanceof MachineCoreTile be) this.machineCoreTile = be;
         else throw new IllegalStateException("MachineCoreMenu: BlockEntity is not an instance of MachineCoreTile");
 
@@ -53,9 +51,8 @@ public class MachineCoreMenu extends AbstractContainerMenu {
     }
 
     private void createMachineCoreSlots(MachineCoreTile blockEntity) {
-//        this.addSlot(new SlotItemHandler(blockEntity.getModuleHandler(), 0, 80, 35));
         blockEntity.moduleHandlerLazyOptional.ifPresent(inventory -> {
-            this.addSlot(new SlotItemHandler(inventory, 0, 80, 35));
+            this.addSlot(new SlotItemHandler(inventory, 0, 80, 36));
         });
     }
 

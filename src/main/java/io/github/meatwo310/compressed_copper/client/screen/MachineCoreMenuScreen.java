@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MachineCoreMenuScreen extends AbstractContainerScreen<MachineCoreMenu> {
 //    private static final ResourceLocation TEXTURE = new ResourceLocation(CompressedCopper.MODID, "textures/gui/machine_core_screen.png");
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/generic_54.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/shulker_box.png");
 
     public MachineCoreMenuScreen(MachineCoreMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);

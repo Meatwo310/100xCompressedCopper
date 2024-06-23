@@ -2,10 +2,7 @@ package io.github.meatwo310.compressed_copper;
 
 import com.mojang.logging.LogUtils;
 import io.github.meatwo310.compressed_copper.config.Config;
-import io.github.meatwo310.compressed_copper.register.Blocks;
-import io.github.meatwo310.compressed_copper.register.CreativeModeTabs;
-import io.github.meatwo310.compressed_copper.register.Items;
-import io.github.meatwo310.compressed_copper.register.TileEntities;
+import io.github.meatwo310.compressed_copper.register.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -54,6 +51,7 @@ public class CompressedCopper {
         TileEntities.register(modEventBus);
         Items.register(modEventBus);
         CreativeModeTabs.register(modEventBus);
+        Menus.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
 
