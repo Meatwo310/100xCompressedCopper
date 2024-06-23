@@ -24,6 +24,8 @@ public class Language {
         protected void addTranslations() {
             add(CreativeModeTabs.COMPRESSED_COPPER_TAB_ID, "Compressed Copper");
             addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "Compressed Copper");
+            addItem(() -> Items.ITEM_MAP.get("machine_casing_1").get(), "1x Machine Casing");
+            addItem(() -> Items.ITEM_MAP.get("test_module_1").get(), "Test Module");
             addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "Machine Core");
         }
     }
@@ -36,6 +38,8 @@ public class Language {
         @Override
         protected void addTranslations() {
             addItem(() -> Items.ITEM_MAP.get("compressed_copper").get(), "圧縮銅");
+            addItem(() -> Items.ITEM_MAP.get("machine_casing_1").get(), "1倍マシンケーシング");
+            addItem(() -> Items.ITEM_MAP.get("test_module_1").get(), "1倍テストモジュール");
             addBlock(() -> Blocks.BLOCK_MAP.get("machine_core").get(), "マシンコア");
         }
     }

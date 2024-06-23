@@ -19,6 +19,12 @@ public class Items {
         add("compressed_copper",
                 () -> new Item(new Item.Properties())
         );
+        add("machine_casing_1",
+                () -> new Item(new Item.Properties())
+        );
+        add("test_module_1",
+                () -> new Item(new Item.Properties())
+        );
     }
 
     private static void add(String name, Supplier<Item> itemSupplier) {
