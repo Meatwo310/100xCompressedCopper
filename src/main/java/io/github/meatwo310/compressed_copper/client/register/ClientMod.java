@@ -15,6 +15,7 @@ public class ClientMod {
     public static void clientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(Menus.MACHINE_CORE_MENU.get(), MachineCoreMenuScreen::new);
+            // Todo: Add more
         });
     }
 }

@@ -53,6 +53,7 @@ public class MachineCoreMenu extends AbstractContainerMenu {
     private void createMachineCoreSlots(MachineCoreTile blockEntity) {
         blockEntity.moduleHandlerLazyOptional.ifPresent(inventory -> {
             this.addSlot(new SlotItemHandler(inventory, 0, 80, 36));
+            // ToDo: Add more slots
         });
     }
 
@@ -85,9 +86,5 @@ public class MachineCoreMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(this.containerLevelAccess, player, Blocks.BLOCK_MAP.get("machine_core").get());
-    }
-
-    public MachineCoreTile getBlockEntity() {
-        return machineCoreTile;
     }
 }

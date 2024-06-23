@@ -61,6 +61,7 @@ public class MachineCore extends Block implements EntityBlock {
                 MachineCoreTile.tick(level1, blockPos, blockState, (MachineCoreTile) t);
     }
 
+    @SuppressWarnings("deprecation")
     @ParametersAreNonnullByDefault
     @Override
     public @NotNull InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {

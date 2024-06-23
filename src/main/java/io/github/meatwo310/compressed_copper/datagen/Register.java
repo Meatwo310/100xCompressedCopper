@@ -13,7 +13,7 @@ public class Register {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
-        ExistingFileHelper efh = event.getExistingFileHelper();
+//        ExistingFileHelper efh = event.getExistingFileHelper();
         Language.register(event.includeClient(), generator);
     }
 }
