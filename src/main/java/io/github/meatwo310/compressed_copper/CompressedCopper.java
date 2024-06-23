@@ -5,6 +5,7 @@ import io.github.meatwo310.compressed_copper.config.Config;
 import io.github.meatwo310.compressed_copper.register.Blocks;
 import io.github.meatwo310.compressed_copper.register.CreativeModeTabs;
 import io.github.meatwo310.compressed_copper.register.Items;
+import io.github.meatwo310.compressed_copper.register.TileEntities;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -50,6 +51,7 @@ public class CompressedCopper {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         Blocks.register(modEventBus);
+        TileEntities.register(modEventBus);
         Items.register(modEventBus);
         CreativeModeTabs.register(modEventBus);
 
