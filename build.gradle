@@ -144,6 +144,10 @@ dependencies {
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
     runtimeOnly fg.deobf("curse.maven:jei-238222:5440261")
     runtimeOnly fg.deobf("curse.maven:catalogue-459701:4766090")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:5339264")
+    runtimeOnly fg.deobf("curse.maven:mekanism-268560:5395221")
+    runtimeOnly fg.deobf("curse.maven:cofh-core-69162:5374122")
+    runtimeOnly fg.deobf("curse.maven:thermal-foundation-222880:5443583")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
