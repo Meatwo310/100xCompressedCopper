@@ -1,5 +1,6 @@
 package io.github.meatwo310.compressed_copper.client.screen;
 
+import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -9,8 +10,8 @@ import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 public class MachineCoreMenuScreen extends AbstractContainerScreen<MachineCoreMenu> {
-//    private static final ResourceLocation TEXTURE = new ResourceLocation(CompressedCopper.MODID, "textures/gui/machine_core_screen.png");
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/shulker_box.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(CompressedCopper.MODID, "textures/gui/machine_core_screen.png");
+//    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/shulker_box.png");
 
     public MachineCoreMenuScreen(MachineCoreMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);

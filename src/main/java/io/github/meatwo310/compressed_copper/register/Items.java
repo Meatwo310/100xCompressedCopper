@@ -1,6 +1,7 @@
 package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.datagen.Model;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,8 +27,12 @@ public class Items {
     );
 
     private static RegistryObject<Item> add(String name, Supplier<Item> itemSupplier) {
+        return add(name, itemSupplier, true);
+    }
+    private static RegistryObject<Item> add(String name, Supplier<Item> itemSupplier, boolean registerItemModel) {
         RegistryObject<Item> item = ITEMS.register(name, itemSupplier);
         ITEM_MAP.put(name, item);
+        if (registerItemModel) Model.addBasicItem(item);
         return item;
     }
 

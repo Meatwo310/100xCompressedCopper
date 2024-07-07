@@ -5,13 +5,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class ModuleHandler extends ItemStackHandler {
-    public ModuleHandler(int size) {
+public class CasingHandler extends ItemStackHandler {
+    public CasingHandler(int size) {
         super(size);
     }
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return stack.is(Items.TEST_MODULE_1.get());
+        return stack.is(Items.MACHINE_CASING_1.get());
     }
 }

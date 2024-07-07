@@ -2,6 +2,7 @@ package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
+import io.github.meatwo310.compressed_copper.datagen.Model;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -23,9 +24,14 @@ public class Blocks {
     );
 
     private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier) {
+        return add(name, blockSupplier, blockItemSupplier, true);
+    }
+
+    private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier, boolean registerItemModel) {
         RegistryObject<Block> block = BLOCKS.register(name, blockSupplier);
         BLOCK_MAP.put(name, block);
         Items.addBlockItem(name, blockItemSupplier);
+        if (registerItemModel) Model.addBasicBlock(block);
         return block;
     }
 

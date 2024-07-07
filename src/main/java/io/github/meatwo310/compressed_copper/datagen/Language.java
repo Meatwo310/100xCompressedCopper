@@ -10,7 +10,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class Language {
-    public static void register(boolean run, DataGenerator generator) {
+    protected static void register(boolean run, DataGenerator generator) {
         generator.addProvider(run, (DataProvider.Factory<EnUs>) EnUs::new);
         generator.addProvider(run, (DataProvider.Factory<JaJp>) JaJp::new);
     }
