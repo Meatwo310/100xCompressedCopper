@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "compressed_copper:item/machine_casing_1"
+    "layer0": "compressed_copper:item/machine_cover_1"
   }
 }

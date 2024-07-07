@@ -57,6 +57,21 @@ public class MachineCoreMenu extends AbstractContainerMenu {
         blockEntity.moduleLazyOptional.ifPresent(inventory ->
                 this.addSlot(new SlotItemHandler(inventory, 0, 8, 54))
         );
+        blockEntity.upgradeLazyOptional.ifPresent(inventory -> {
+            for (int i = 0; i < 3; i++) {
+                this.addSlot(new SlotItemHandler(inventory, i, 152, 18 + i * 18));
+            }
+        });
+        blockEntity.inputLazyOptional.ifPresent(inventory -> {
+            for (int i = 0; i < 4; i++) {
+                this.addSlot(new SlotItemHandler(inventory, i, 35 + (i % 2) * 18, 27 + (i / 2) * 18));
+            }
+        });
+        blockEntity.outputLazyOptional.ifPresent(inventory -> {
+            for (int i = 0; i < 4; i++) {
+                this.addSlot(new SlotItemHandler(inventory, i, 107 + (i % 2) * 18, 27 + (i / 2) * 18));
+            }
+        });
     }
 
 
@@ -72,7 +87,8 @@ public class MachineCoreMenu extends AbstractContainerMenu {
         ItemStack itemStackCopy = itemStack.copy();
 
         if (i < 36) {
-            if (!this.moveItemStackTo(itemStack, 36, this.slots.size(), true)) {
+            // Player Inventory
+            if (!this.moveItemStackTo(itemStack, 36, this.slots.size(), false)) {
                 return ItemStack.EMPTY;
             }
         } else if (!this.moveItemStackTo(itemStack, 0, 36, false)) {

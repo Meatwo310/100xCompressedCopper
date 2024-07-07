@@ -11,12 +11,13 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class Blocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CompressedCopper.MODID);
-    public static final HashMap<String, RegistryObject<Block>> BLOCK_MAP = new HashMap<>();
+    public static final Map<String, RegistryObject<Block>> BLOCK_MAP = new LinkedHashMap<>();
 
     public static final RegistryObject<Block> MACHINE_CORE = add("machine_core",
             () -> new MachineCore(BlockBehaviour.Properties.of()),
@@ -37,5 +38,5 @@ public class Blocks {
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
+        }
     }
-}

@@ -1,7 +1,9 @@
 {
   "block.compressed_copper.machine_core": "マシンコア",
   "container.compressed_copper.machine_core": "マシンコア",
+  "container.compressed_copper.machine_core.custom": "マシン(%s)",
   "item.compressed_copper.compressed_copper": "圧縮銅",
-  "item.compressed_copper.machine_casing_1": "1倍マシンケーシング",
-  "item.compressed_copper.test_module_1": "1倍テストモジュール"
+  "item.compressed_copper.machine_cover_1": "1倍マシンカバー",
+  "item.compressed_copper.test_module_1": "1倍テストモジュール",
+  "item.compressed_copper.test_upgrade_1": "1倍テストアップグレード"
 }

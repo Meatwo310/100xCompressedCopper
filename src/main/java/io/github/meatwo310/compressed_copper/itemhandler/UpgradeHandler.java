@@ -5,13 +5,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class CasingHandler extends ItemStackHandler {
-    public CasingHandler(int size) {
+public class UpgradeHandler extends ItemStackHandler {
+    public UpgradeHandler(int size) {
         super(size);
     }
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return stack.is(Items.MACHINE_COVER_1.get());
+        return stack.is(Items.TEST_UPGRADE_1.get());
     }
 }

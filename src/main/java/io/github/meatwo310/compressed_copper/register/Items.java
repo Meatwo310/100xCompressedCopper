@@ -9,20 +9,24 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class Items {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CompressedCopper.MODID);
-    public static final HashMap<String, RegistryObject<Item>> ITEM_MAP = new HashMap<>();
+    public static final Map<String, RegistryObject<Item>> ITEM_MAP = new LinkedHashMap<>();
 
     public static final RegistryObject<Item> COMPRESSED_COPPER = add("compressed_copper",
             () -> new Item(new Item.Properties())
     );
-    public static final RegistryObject<Item> MACHINE_CASING_1 = add("machine_casing_1",
+    public static final RegistryObject<Item> MACHINE_COVER_1 = add("machine_cover_1",
             () -> new Item(new Item.Properties())
     );
     public static final RegistryObject<Item> TEST_MODULE_1 = add("test_module_1",
+            () -> new Item(new Item.Properties())
+    );
+    public static final RegistryObject<Item> TEST_UPGRADE_1 = add("test_upgrade_1",
             () -> new Item(new Item.Properties())
     );
 
