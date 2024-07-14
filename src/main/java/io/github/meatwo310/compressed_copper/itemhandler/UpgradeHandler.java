@@ -14,4 +14,9 @@ public class UpgradeHandler extends ItemStackHandler {
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         return stack.is(Items.TEST_UPGRADE_1.get());
     }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return 1;
+    }
 }

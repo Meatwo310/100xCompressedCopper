@@ -14,4 +14,9 @@ public class CasingHandler extends ItemStackHandler {
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         return stack.is(Items.MACHINE_COVER_1.get());
     }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return 1;
+    }
 }
