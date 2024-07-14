@@ -1,9 +1,11 @@
 package io.github.meatwo310.compressed_copper.itemhandler;
 
-import io.github.meatwo310.compressed_copper.register.Items;
+import io.github.meatwo310.compressed_copper.data.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class UpgradeHandler extends ItemStackHandler {
     public UpgradeHandler(int size) {
@@ -12,7 +14,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-        return stack.is(Items.TEST_UPGRADE_1.get());
+        return stack.getTags().anyMatch(tag -> Objects.equals(tag, ItemTags.UPGRADES));
     }
 
     @Override

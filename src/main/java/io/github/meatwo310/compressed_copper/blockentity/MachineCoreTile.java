@@ -44,7 +44,7 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
             setChanged();
         }
     };
-    private final IItemHandler casing = new CasingHandler(1) {
+    private final IItemHandler casing = new CoversHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -99,7 +99,7 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
                 handler.deserializeNBT(data.getCompound("output"))
         );
         if (data.contains("casing")) this.casingLazyOptional.ifPresent(handler ->
-                ((CasingHandler) handler).deserializeNBT(data.getCompound("casing"))
+                ((CoversHandler) handler).deserializeNBT(data.getCompound("casing"))
         );
         if (data.contains("module")) this.moduleLazyOptional.ifPresent(handler ->
                 ((ModuleHandler) handler).deserializeNBT(data.getCompound("module"))
@@ -115,7 +115,7 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
         CompoundTag data = new CompoundTag();
         this.inputLazyOptional.ifPresent(handler -> data.put("input", handler.serializeNBT()));
         this.outputLazyOptional.ifPresent(handler -> data.put("output", handler.serializeNBT()));
-        this.casingLazyOptional.ifPresent(handler -> data.put("casing", ((CasingHandler) handler).serializeNBT()));
+        this.casingLazyOptional.ifPresent(handler -> data.put("casing", ((CoversHandler) handler).serializeNBT()));
         this.moduleLazyOptional.ifPresent(handler -> data.put("module", ((ModuleHandler) handler).serializeNBT()));
         this.upgradeLazyOptional.ifPresent(handler -> data.put("upgrade", ((UpgradeHandler) handler).serializeNBT()));
         nbt.put(CompressedCopper.MODID, data);
