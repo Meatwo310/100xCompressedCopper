@@ -39,15 +39,14 @@ public class Tag {
 
         @Override
         protected void addTags(@NotNull HolderLookup.Provider provider) {
-            this.tag(ItemTags.COVERS).add(
-                    Items.MACHINE_COVER_1.get()
-            );
-            this.tag(ItemTags.MODULES).add(
-                    Items.TEST_MODULE_1.get()
-            );
-            this.tag(ItemTags.UPGRADES).add(
-                    Items.TEST_UPGRADE_1.get()
-            );
+            Items.ITEM_MAP.forEach((name, item) -> {
+                if (name.matches(".*_cover_[0-9]+"))
+                    this.tag(ItemTags.COVERS).add(item.get());
+                else if (name.matches(".*_module_[0-9]+"))
+                    this.tag(ItemTags.MODULES).add(item.get());
+                else if (name.matches(".*_upgrade_[0-9]+"))
+                    this.tag(ItemTags.UPGRADES).add(item.get());
+            });
         }
     }
 }
