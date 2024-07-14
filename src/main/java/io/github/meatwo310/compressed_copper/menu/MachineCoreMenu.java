@@ -64,12 +64,12 @@ public class MachineCoreMenu extends AbstractContainerMenu {
         });
         blockEntity.inputLazyOptional.ifPresent(inventory -> {
             for (int i = 0; i < 4; i++) {
-                this.addSlot(new SlotItemHandler(inventory, i, 35 + (i % 2) * 18, 27 + (i / 2) * 18));
+                this.addSlot(new SlotItemHandler(inventory, i, 35 + (i % 2) * 18, 18 + (i / 2) * 18));
             }
         });
         blockEntity.outputLazyOptional.ifPresent(inventory -> {
             for (int i = 0; i < 4; i++) {
-                this.addSlot(new SlotItemHandler(inventory, i, 107 + (i % 2) * 18, 27 + (i / 2) * 18));
+                this.addSlot(new SlotItemHandler(inventory, i, 107 + (i % 2) * 18, 18 + (i / 2) * 18));
             }
         });
     }
