@@ -1,6 +1,6 @@
 package io.github.meatwo310.compressed_copper.menu;
 
-import io.github.meatwo310.compressed_copper.blockentity.MachineCoreTile;
+import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
 import io.github.meatwo310.compressed_copper.register.Blocks;
 import io.github.meatwo310.compressed_copper.register.Menus;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class MachineCoreMenu extends AbstractContainerMenu {
-    private final MachineCoreTile machineCoreTile;
+    private final MachineCoreBlockEntity machineCoreBlockEntity;
     private final ContainerLevelAccess containerLevelAccess;
 
     // Client
@@ -26,7 +26,7 @@ public class MachineCoreMenu extends AbstractContainerMenu {
     // Server
     public MachineCoreMenu(int id, Inventory playerInventory, BlockEntity blockEntity) {
         super(Menus.MACHINE_CORE_MENU.get(), id);
-        if (blockEntity instanceof MachineCoreTile be) this.machineCoreTile = be;
+        if (blockEntity instanceof MachineCoreBlockEntity be) this.machineCoreBlockEntity = be;
         else throw new IllegalStateException("MachineCoreMenu: BlockEntity is not an instance of MachineCoreTile");
 
         this.containerLevelAccess = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
@@ -50,7 +50,7 @@ public class MachineCoreMenu extends AbstractContainerMenu {
         }
     }
 
-    private void createMachineCoreSlots(MachineCoreTile blockEntity) {
+    private void createMachineCoreSlots(MachineCoreBlockEntity blockEntity) {
         blockEntity.casingLazyOptional.ifPresent(inventory ->
                 this.addSlot(new SlotItemHandler(inventory, 0, 8, 18))
         );

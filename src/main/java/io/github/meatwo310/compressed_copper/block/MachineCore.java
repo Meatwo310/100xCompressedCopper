@@ -1,7 +1,7 @@
 package io.github.meatwo310.compressed_copper.block;
 
-import io.github.meatwo310.compressed_copper.blockentity.MachineCoreTile;
-import io.github.meatwo310.compressed_copper.register.TileEntities;
+import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
+import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,15 +50,15 @@ public class MachineCore extends Block implements EntityBlock {
     @ParametersAreNonnullByDefault
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return TileEntities.MACHINE_CORE.get().create(blockPos, blockState);
+        return BlockEntities.MACHINE_CORE.get().create(blockPos, blockState);
     }
 
     @Nullable
     @ParametersAreNonnullByDefault
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return type != TileEntities.MACHINE_CORE.get() ? null : (level1, blockPos, blockState, t) ->
-                MachineCoreTile.tick(level1, blockPos, blockState, (MachineCoreTile) t);
+        return type != BlockEntities.MACHINE_CORE.get() ? null : (level1, blockPos, blockState, t) ->
+                MachineCoreBlockEntity.tick(level1, blockPos, blockState, (MachineCoreBlockEntity) t);
     }
 
     @SuppressWarnings("deprecation")

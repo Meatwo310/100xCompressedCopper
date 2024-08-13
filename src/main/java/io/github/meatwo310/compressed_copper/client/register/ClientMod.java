@@ -1,10 +1,10 @@
 package io.github.meatwo310.compressed_copper.client.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
-import io.github.meatwo310.compressed_copper.client.renderer.MachineCoreTileRenderer;
+import io.github.meatwo310.compressed_copper.client.renderer.MachineCoreBlockEntityRenderer;
 import io.github.meatwo310.compressed_copper.client.screen.MachineCoreMenuScreen;
 import io.github.meatwo310.compressed_copper.register.Menus;
-import io.github.meatwo310.compressed_copper.register.TileEntities;
+import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -24,6 +24,6 @@ public class ClientMod {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(TileEntities.MACHINE_CORE.get(), MachineCoreTileRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntities.MACHINE_CORE.get(), MachineCoreBlockEntityRenderer::new);
     }
 }

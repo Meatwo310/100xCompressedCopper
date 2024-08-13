@@ -1,7 +1,7 @@
 package io.github.meatwo310.compressed_copper.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.meatwo310.compressed_copper.blockentity.MachineCoreTile;
+import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
 import io.github.meatwo310.compressed_copper.util.ModulesUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,12 +16,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.joml.Quaternionf;
 
-public class MachineCoreTileRenderer implements BlockEntityRenderer<MachineCoreTile> {
-    public MachineCoreTileRenderer(BlockEntityRendererProvider.Context context) {
+public class MachineCoreBlockEntityRenderer implements BlockEntityRenderer<MachineCoreBlockEntity> {
+    public MachineCoreBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(MachineCoreTile blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay) {
+    public void render(MachineCoreBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay) {
         ResourceLocation moduleBlockLoc = ModulesUtil.getModuleBlockLoc(blockEntity.getModule());
         if (moduleBlockLoc == null) return;
 

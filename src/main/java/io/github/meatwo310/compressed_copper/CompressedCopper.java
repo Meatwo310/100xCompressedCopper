@@ -21,7 +21,7 @@ public class CompressedCopper {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         Blocks.register(modEventBus);
-        TileEntities.register(modEventBus);
+        BlockEntities.register(modEventBus);
         Items.register(modEventBus);
         CreativeModeTabs.register(modEventBus);
         Menus.register(modEventBus);

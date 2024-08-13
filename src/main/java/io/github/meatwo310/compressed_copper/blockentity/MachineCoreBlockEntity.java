@@ -4,7 +4,7 @@ import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.itemhandler.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
-import io.github.meatwo310.compressed_copper.register.TileEntities;
+import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,7 +28,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MachineCoreTile extends BlockEntity implements MenuProvider {
+public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider {
     private static final Component TITLE =
             Component.translatable("container." + CompressedCopper.MODID + ".machine_core");
     private final ItemStackHandler input = new InputHandler(4) {
@@ -77,8 +77,8 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
     private Component customName = TITLE;
 
 
-    public MachineCoreTile(BlockPos pos, BlockState state) {
-        super(TileEntities.MACHINE_CORE.get(), pos, state);
+    public MachineCoreBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntities.MACHINE_CORE.get(), pos, state);
     }
 
     public ItemStack getModule() {
@@ -159,7 +159,7 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
     }
 
     @SuppressWarnings("unused parameter")
-    public static void tick(Level level, BlockPos pos, BlockState state, MachineCoreTile tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, MachineCoreBlockEntity tile) {
         if (level.isClientSide()) return;
 
         if (level.getGameTime() % 20 == 0) tile.setCustomName();
