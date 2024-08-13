@@ -20,9 +20,10 @@ public class Blocks {
     public static final Map<String, RegistryObject<Block>> BLOCK_MAP = new LinkedHashMap<>();
 
     public static final RegistryObject<Block> MACHINE_CORE = add("machine_core",
-            () -> new MachineCore(BlockBehaviour.Properties.of()),
+            () -> new MachineCore(BlockBehaviour.Properties.of().noOcclusion()),
             () -> new BlockItem(Blocks.MACHINE_CORE.get(), new BlockItem.Properties())
     );
+
 
     private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier) {
         return add(name, blockSupplier, blockItemSupplier, true);
@@ -36,7 +37,15 @@ public class Blocks {
         return block;
     }
 
+    protected static RegistryObject<Block> addModuleBlock(String name) {
+        RegistryObject<Block> block = BLOCKS.register(name + "_block", () -> new Block(BlockBehaviour.Properties.of()));
+        BLOCK_MAP.put(name + "_block", block);
+        Model.addModuleBlock(block);
+
+        return block;
+    }
+
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
-        }
     }
+}

@@ -1,6 +1,7 @@
 package io.github.meatwo310.compressed_copper.blockentity;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.itemhandler.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import io.github.meatwo310.compressed_copper.register.TileEntities;
@@ -78,6 +79,15 @@ public class MachineCoreTile extends BlockEntity implements MenuProvider {
 
     public MachineCoreTile(BlockPos pos, BlockState state) {
         super(TileEntities.MACHINE_CORE.get(), pos, state);
+    }
+
+    public ItemStack getModule() {
+        if (!moduleLazyOptional.isPresent()) return ItemStack.EMPTY;
+        return moduleLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
+    }
+
+    public Direction getDirection() {
+        return this.getBlockState().getValue(MachineCore.FACING);
     }
 
     @NotNull

@@ -23,9 +23,7 @@ public class Items {
     public static final RegistryObject<Item> MACHINE_COVER_1 = add("machine_cover_1",
             () -> new Item(new Item.Properties())
     );
-    public static final RegistryObject<Item> TEST_MODULE_1 = add("test_module_1",
-            () -> new Item(new Item.Properties())
-    );
+    public static final RegistryObject<Item> TEST_MODULE_1 = addModule("test_module_1");
     public static final RegistryObject<Item> TEST_UPGRADE_1 = add("test_upgrade_1",
             () -> new Item(new Item.Properties())
     );
@@ -37,6 +35,14 @@ public class Items {
         RegistryObject<Item> item = ITEMS.register(name, itemSupplier);
         ITEM_MAP.put(name, item);
         if (registerItemModel) Model.addBasicItem(item);
+        return item;
+    }
+
+    private static RegistryObject<Item> addModule(String name) {
+        RegistryObject<Item> item = ITEMS.register(name, () -> new Item(new Item.Properties()));
+        ITEM_MAP.put(name, item);
+        Model.addBasicItem(item);
+        Blocks.addModuleBlock(name);
         return item;
     }
 

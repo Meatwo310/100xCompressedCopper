@@ -87,8 +87,10 @@ public class MachineCoreMenu extends AbstractContainerMenu {
         ItemStack itemStackCopy = itemStack.copy();
 
         if (i < 36) {
-            // Player Inventory
-            if (!this.moveItemStackTo(itemStack, 36, this.slots.size(), false)) {
+            // プレイヤーインベントリのアイテムをマシンコアに移動
+
+            // マシンコアのスロットに移動(outputスロット4枠を除く)
+            if (!this.moveItemStackTo(itemStack, 36, this.slots.size() - 4, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (!this.moveItemStackTo(itemStack, 0, 36, false)) {

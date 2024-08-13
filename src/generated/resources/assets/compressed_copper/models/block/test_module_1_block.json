@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            8.0,
+            4.0
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            0.0,
+            4.0,
+            4.0,
+            8.0
+          ]
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0.0,
+            0.0,
+            4.0,
+            4.0
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            0.0,
+            8.0,
+            4.0
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            12.0,
+            0.0,
+            8.0
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            4.0,
+            8.0,
+            8.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
+  "textures": {
+    "0": "compressed_copper:block/module/test_module_1_block"
+  }
+}

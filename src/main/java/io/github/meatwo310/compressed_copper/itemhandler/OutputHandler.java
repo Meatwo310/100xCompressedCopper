@@ -13,4 +13,9 @@ public class OutputHandler extends ItemStackHandler {
     public boolean isItemValid(int slot, @NotNull ItemStack stack) {
         return true;
     }
+
+    @Override
+    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+        return stack;
+    }
 }
