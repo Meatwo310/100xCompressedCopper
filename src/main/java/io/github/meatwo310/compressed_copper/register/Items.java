@@ -20,11 +20,11 @@ public class Items {
     public static final RegistryObject<Item> COMPRESSED_COPPER = add("compressed_copper",
             () -> new Item(new Item.Properties())
     );
-    public static final RegistryObject<Item> MACHINE_COVER_1 = add("machine_cover_1",
+    public static final RegistryObject<Item> MACHINE_COVER = add("machine_cover",
             () -> new Item(new Item.Properties())
     );
-    public static final RegistryObject<Item> TEST_MODULE_1 = addModule("test_module_1");
-    public static final RegistryObject<Item> TEST_UPGRADE_1 = add("test_upgrade_1",
+    public static final RegistryObject<Item> TEST_MODULE = addModule("test_module");
+    public static final RegistryObject<Item> TEST_UPGRADE = add("test_upgrade",
             () -> new Item(new Item.Properties())
     );
 

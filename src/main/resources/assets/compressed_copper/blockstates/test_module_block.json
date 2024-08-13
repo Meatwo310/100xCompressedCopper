@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "compressed_copper:block/test_module_block"
+    }
+  }
+}

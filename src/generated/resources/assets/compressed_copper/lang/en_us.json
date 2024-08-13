@@ -1,10 +1,10 @@
 {
   "block.compressed_copper.machine_core": "Machine Core",
   "container.compressed_copper.machine_core": "Machine Core",
-  "container.compressed_copper.machine_core.custom": "マシン(%s)",
+  "container.compressed_copper.machine_core.custom": "Machine (%s)",
   "item.compressed_copper.compressed_copper": "Compressed Copper",
-  "item.compressed_copper.machine_cover_1": "1x Machine Cover",
-  "item.compressed_copper.test_module_1": "1x Test Module",
-  "item.compressed_copper.test_upgrade_1": "1x Test Upgrade",
+  "item.compressed_copper.machine_cover": "Machine Cover",
+  "item.compressed_copper.test_module": "Test Module",
+  "item.compressed_copper.test_upgrade": "Test Upgrade",
   "item_group.compressed_copper.general": "Compressed Copper"
 }

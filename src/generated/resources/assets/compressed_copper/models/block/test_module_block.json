@@ -71,6 +71,6 @@
     }
   ],
   "textures": {
-    "0": "compressed_copper:block/module/test_module_1_block"
+    "0": "compressed_copper:block/module/test_module_block"
   }
 }
