@@ -2,10 +2,9 @@ package io.github.meatwo310.compressed_copper.itemhandler;
 
 import io.github.meatwo310.compressed_copper.data.ItemTags;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class CoversHandler extends ItemStackHandler {
+public class CoversHandler extends ItemStackHandlerPlus {
     public CoversHandler(int size) {
         super(size);
     }

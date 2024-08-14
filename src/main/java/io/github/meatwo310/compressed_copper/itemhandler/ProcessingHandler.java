@@ -3,7 +3,7 @@ package io.github.meatwo310.compressed_copper.itemhandler;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class ProcessingHandler extends ItemStackHandlerConsumable {
+public class ProcessingHandler extends ItemStackHandlerPlus {
     public ProcessingHandler(int size) {
         super(size);
     }

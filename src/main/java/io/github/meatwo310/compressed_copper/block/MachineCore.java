@@ -4,6 +4,7 @@ import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
 import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -60,7 +61,7 @@ public class MachineCore extends Block implements EntityBlock {
         if (level.isClientSide()) return null;
         if (type != BlockEntities.MACHINE_CORE.get()) return null;
         return (level1, blockPos, blockState, t) ->
-                MachineCoreBlockEntity.tick(level1, blockPos, blockState, (MachineCoreBlockEntity) t);
+                MachineCoreBlockEntity.tick((ServerLevel) level1, blockPos, blockState, (MachineCoreBlockEntity) t);
     }
 
     @SuppressWarnings("deprecation")

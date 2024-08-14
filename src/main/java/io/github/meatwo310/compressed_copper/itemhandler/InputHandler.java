@@ -3,7 +3,7 @@ package io.github.meatwo310.compressed_copper.itemhandler;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class InputHandler extends ItemStackHandlerConsumable {
+public class InputHandler extends ItemStackHandlerPlus {
     public InputHandler(int size) {
         super(size);
     }

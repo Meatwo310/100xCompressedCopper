@@ -7,17 +7,19 @@ import io.github.meatwo310.compressed_copper.itemhandler.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import io.github.meatwo310.compressed_copper.util.MachineCoreRecipe;
+import io.github.meatwo310.compressed_copper.util.RegistryItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,8 +28,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,8 +80,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
         }
     };
-    private final ItemStackHandler processingInput;
-    private final ItemStackHandler processingOutput;
+    private final ProcessingHandler processingInput;
+    private final ProcessingHandler processingOutput;
 
     public final LazyOptional<ItemStackHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
     public final LazyOptional<ItemStackHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
@@ -252,17 +252,16 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @SuppressWarnings("unused parameter")
-    public static void tick(Level level, BlockPos pos, BlockState state, MachineCoreBlockEntity be) {
+    public static void tick(ServerLevel level, BlockPos pos, BlockState state, MachineCoreBlockEntity be) {
         // Set the custom name every 20 ticks
         // Note: Custom name is set automatically when the casing or module is changed
         if (level.getGameTime() % 20 == 0) be.setCustomName();
 
         // Check if the block entity is processing and increase the progress
         if (be.isProcessing()) {
+            level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 1, pos.getY() + 1.0, pos.getZ() + 1, 1, 0.0, 0.0, 0.0, 0.0);
             be.increaseProgress();
-            if (be.isProcessingFinished()) {
-                be.finishProcessing();
-            } else {
+            if (!be.isProcessingFinished() || !be.finishProcessing()) {
                 // Return early to skip unnecessary checks if the processing is not finished
                 return;
             }
@@ -281,45 +280,48 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         // TODO: Progress bar
         MachineCoreRecipe recipe = be.getValidRecipe();
         if (recipe == null) return;
-        be.startProcessing(recipe.inputs.get(0), recipe.outputs.get(0), recipe.ticks);
+        be.startProcessing(recipe.inputs, recipe.outputs, recipe.ticks);
     }
 
     @Nullable
     private MachineCoreRecipe getValidRecipe() {
         List<MachineCoreRecipe> recipes = new ArrayList<>();
         recipes.add(new MachineCoreRecipe(
-                List.of(new ItemStack(
-                        RegistryObject.create(
-                                new ResourceLocation("minecraft:copper_block"),
-                                ForgeRegistries.ITEMS
-                        ).get(),
-                        9
-                )),
-                List.of(new ItemStack(
-                        RegistryObject.create(
-                            new ResourceLocation("allcompressedblock:compressed_copper_block_item_1"),
-                            ForgeRegistries.ITEMS
-                        ).get(),
-                        1
-                )),
+                List.of(
+                        RegistryItemUtil.getRegistryItemStack("minecraft:copper_block", 9)
+                ),
+                List.of(
+                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_1")
+                ),
                 4
         ));
         recipes.add(new MachineCoreRecipe(
-                List.of(new ItemStack(
-                        RegistryObject.create(
-                                new ResourceLocation("allcompressedblock:compressed_copper_block_item_1"),
-                                ForgeRegistries.ITEMS
-                        ).get(),
-                        9
-                )),
-                List.of(new ItemStack(
-                        RegistryObject.create(
-                                new ResourceLocation("allcompressedblock:compressed_copper_block_item_2"),
-                                ForgeRegistries.ITEMS
-                        ).get(),
-                        1
-                )),
+                List.of(
+                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_1", 9)
+                ),
+                List.of(
+                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_2", 1)
+                ),
                 4
+        ));
+        recipes.add(new MachineCoreRecipe(
+                List.of(
+                        new ItemStack(Items.GOLDEN_APPLE, 1),
+                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_gold_block_item_1", 8)
+                ),
+                List.of(
+                        new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1)
+                ),
+                200
+        ));
+        recipes.add(new MachineCoreRecipe(
+                List.of(
+                        new ItemStack(Items.COBBLESTONE, 1)
+                ),
+                List.of(
+                        new ItemStack(Items.COBBLESTONE, 65)
+                ),
+                1
         ));
 
         for (MachineCoreRecipe recipe : recipes) {
@@ -330,11 +332,11 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         return null;
     }
 
-    private void startProcessing(ItemStack inputStack, ItemStack outputStack, int ticks) {
+    private void startProcessing(List<ItemStack> inputStacks, List<ItemStack> outputStacks, int ticks) {
         this.maxProgress = ticks;
-        this.processingInput.setStackInSlot(0, inputStack);
-        this.processingOutput.setStackInSlot(0, outputStack);
-        this.input.consumeAll(inputStack);
+        this.processingInput.copyItemStacks(inputStacks);
+        this.processingOutput.copyItemStacks(outputStacks);
+        this.input.consumeAllStacks(inputStacks);
     }
 
     private boolean isProcessing() {
@@ -349,22 +351,26 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.progress++;
     }
 
-    private void finishProcessing() {
+    private boolean finishProcessing() {
         // empty the processing input
-        for (int i = 0; i < this.processingInput.getSlots(); i++) {
-            this.processingInput.setStackInSlot(i, ItemStack.EMPTY);
-        }
+        this.processingInput.empty();
 
         // move the processing output to the output
         for (int i = 0; i < this.processingOutput.getSlots(); i++) {
             ItemStack stack = this.processingOutput.getStackInSlot(i);
             if (stack.isEmpty()) continue;
-            this.processingOutput.setStackInSlot(i, ItemStack.EMPTY);
-            this.output.forceInsertItem(0, stack, false);
+            ItemStack remaining = this.output.forceInsertItem(stack, false);
+            this.processingOutput.setStackInSlot(i, remaining);
         }
 
-        // reset the progress
-        this.progress = 0;
-        this.maxProgress = 0;
+        if (this.processingOutput.isEmpty()) {
+            this.progress = 0;
+            this.maxProgress = 0;
+            return true;
+        } else {
+            // if the output is not empty, try to move the remaining items to the input next tick
+            this.progress--;
+            return false;
+        }
     }
 }
