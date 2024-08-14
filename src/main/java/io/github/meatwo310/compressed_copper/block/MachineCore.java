@@ -57,7 +57,9 @@ public class MachineCore extends Block implements EntityBlock {
     @ParametersAreNonnullByDefault
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return type != BlockEntities.MACHINE_CORE.get() ? null : (level1, blockPos, blockState, t) ->
+        if (level.isClientSide()) return null;
+        if (type != BlockEntities.MACHINE_CORE.get()) return null;
+        return (level1, blockPos, blockState, t) ->
                 MachineCoreBlockEntity.tick(level1, blockPos, blockState, (MachineCoreBlockEntity) t);
     }
 

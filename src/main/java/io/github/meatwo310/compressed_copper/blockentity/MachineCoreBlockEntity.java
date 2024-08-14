@@ -253,8 +253,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
 
     @SuppressWarnings("unused parameter")
     public static void tick(Level level, BlockPos pos, BlockState state, MachineCoreBlockEntity be) {
-        if (level.isClientSide()) return;
-
         // Set the custom name every 20 ticks
         // Note: Custom name is set automatically when the casing or module is changed
         if (level.getGameTime() % 20 == 0) be.setCustomName();
