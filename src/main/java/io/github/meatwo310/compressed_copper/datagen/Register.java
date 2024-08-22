@@ -27,5 +27,6 @@ public class Register {
         Language.register(includeClient, generator);
         Model.register(includeClient, generator, output, efh);
         Tag.register(includeServer, generator, output, lookupProvider, efh);
+        LootTable.register(includeServer, generator, output);
     }
 }

@@ -3,9 +3,12 @@ package io.github.meatwo310.compressed_copper.register;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.datagen.Model;
+import io.github.meatwo310.compressed_copper.datagen.Tag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -20,20 +23,22 @@ public class Blocks {
     public static final Map<String, RegistryObject<Block>> BLOCK_MAP = new LinkedHashMap<>();
 
     public static final RegistryObject<Block> MACHINE_CORE = add("machine_core",
-            () -> new MachineCore(BlockBehaviour.Properties.of().noOcclusion()),
+            () -> new MachineCore(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .noOcclusion()
+                    .strength(3.0F, 1200.0F)
+                    .sound(SoundType.COPPER)
+            ),
             () -> new BlockItem(Blocks.MACHINE_CORE.get(), new BlockItem.Properties())
     );
 
 
     private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier) {
-        return add(name, blockSupplier, blockItemSupplier, true);
-    }
-
-    private static RegistryObject<Block> add(String name, Supplier<Block> blockSupplier, Supplier<BlockItem> blockItemSupplier, boolean registerItemModel) {
         RegistryObject<Block> block = BLOCKS.register(name, blockSupplier);
         BLOCK_MAP.put(name, block);
         Items.addBlockItem(name, blockItemSupplier);
-        if (registerItemModel) Model.addBasicBlock(block);
+        Model.addBasicBlock(block);
+        Tag.addMineableWithPickaxeBlock(block);
         return block;
     }
 
