@@ -26,8 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +55,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
         }
     };
-    private final CoversHandler casing = new CoversHandler(COVER_SLOTS) {
+    private final CoverHandler cover = new CoverHandler(COVER_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -83,13 +81,13 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     private final ProcessingHandler processingInput;
     private final ProcessingHandler processingOutput;
 
-    public final LazyOptional<ItemStackHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
-    public final LazyOptional<ItemStackHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
-    public final LazyOptional<IItemHandler> casingLazyOptional = LazyOptional.of(() -> this.casing);
-    public final LazyOptional<IItemHandler> moduleLazyOptional = LazyOptional.of(() -> this.module);
-    public final LazyOptional<IItemHandler> upgradeLazyOptional = LazyOptional.of(() -> this.upgrade);
-    public final LazyOptional<ItemStackHandler> processingInputLazyOptional;
-    public final LazyOptional<ItemStackHandler> processingOutputLazyOptional;
+    public final LazyOptional<InputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
+    public final LazyOptional<OutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
+    public final LazyOptional<CoverHandler> coverLazyOptional = LazyOptional.of(() -> this.cover);
+    public final LazyOptional<ModuleHandler> moduleLazyOptional = LazyOptional.of(() -> this.module);
+    public final LazyOptional<UpgradeHandler> upgradeLazyOptional = LazyOptional.of(() -> this.upgrade);
+    public final LazyOptional<ProcessingHandler> processingInputLazyOptional;
+    public final LazyOptional<ProcessingHandler> processingOutputLazyOptional;
 
     private int progress = 0;
     private int maxProgress = 0;
@@ -145,14 +143,14 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         if (data.contains("output")) this.outputLazyOptional.ifPresent(handler ->
                 handler.deserializeNBT(data.getCompound("output"))
         );
-        if (data.contains("casing")) this.casingLazyOptional.ifPresent(handler ->
-                ((CoversHandler) handler).deserializeNBT(data.getCompound("casing"))
+        if (data.contains("cover")) this.coverLazyOptional.ifPresent(handler ->
+                handler.deserializeNBT(data.getCompound("cover"))
         );
         if (data.contains("module")) this.moduleLazyOptional.ifPresent(handler ->
-                ((ModuleHandler) handler).deserializeNBT(data.getCompound("module"))
+                handler.deserializeNBT(data.getCompound("module"))
         );
         if (data.contains("upgrade")) this.upgradeLazyOptional.ifPresent(handler ->
-                ((UpgradeHandler) handler).deserializeNBT(data.getCompound("upgrade"))
+                handler.deserializeNBT(data.getCompound("upgrade"))
         );
         if (data.contains("processingInput")) this.processingInputLazyOptional.ifPresent(handler ->
                 handler.deserializeNBT(data.getCompound("processingInput"))
@@ -169,31 +167,29 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         super.saveAdditional(nbt);
         CompoundTag data = new CompoundTag();
 
-        this.inputLazyOptional.ifPresent(handler ->
-                data.put("input", handler.serializeNBT())
-        );
-        this.outputLazyOptional.ifPresent(handler ->
-                data.put("output", handler.serializeNBT())
-        );
-        this.casingLazyOptional.ifPresent(handler ->
-                data.put("casing", ((CoversHandler) handler).serializeNBT())
-        );
-        this.moduleLazyOptional.ifPresent(handler ->
-                data.put("module", ((ModuleHandler) handler).serializeNBT())
-        );
-        this.upgradeLazyOptional.ifPresent(handler ->
-                data.put("upgrade", ((UpgradeHandler) handler).serializeNBT())
-        );
-        this.processingInputLazyOptional.ifPresent(handler ->
-                data.put("processingInput", handler.serializeNBT())
-        );
-        this.processingOutputLazyOptional.ifPresent(handler ->
-                data.put("processingOutput", handler.serializeNBT())
-        );
-        if (this.progress > 0)
-            data.putInt("progress", this.progress);
-        if (this.maxProgress > 0)
-            data.putInt("maxProgress", this.maxProgress);
+        this.inputLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("input", handler.serializeNBT());
+        });
+        this.outputLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("output", handler.serializeNBT());
+        });
+        this.coverLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("cover", handler.serializeNBT());
+        });
+        this.moduleLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("module", handler.serializeNBT());
+        });
+        this.upgradeLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("upgrade", handler.serializeNBT());
+        });
+        this.processingInputLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("processingInput", handler.serializeNBT());
+        });
+        this.processingOutputLazyOptional.ifPresent(handler -> {
+            if (!handler.isEmpty()) data.put("processingOutput", handler.serializeNBT());
+        });
+        if (this.progress > 0)  data.putInt("progress", this.progress);
+        if (this.maxProgress > 0) data.putInt("maxProgress", this.maxProgress);
 
         nbt.put(CompressedCopper.MODID, data);
     }
@@ -202,7 +198,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public void setRemoved() {
         this.inputLazyOptional.invalidate();
         this.outputLazyOptional.invalidate();
-        this.casingLazyOptional.invalidate();
+        this.coverLazyOptional.invalidate();
         this.moduleLazyOptional.invalidate();
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
@@ -222,7 +218,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         super.invalidateCaps();
         this.inputLazyOptional.invalidate();
         this.outputLazyOptional.invalidate();
-        this.casingLazyOptional.invalidate();
+        this.coverLazyOptional.invalidate();
         this.moduleLazyOptional.invalidate();
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
@@ -230,8 +226,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public void setCustomName() {
-        if (!casingLazyOptional.isPresent() || !moduleLazyOptional.isPresent()) return;
-        ItemStack casing = casingLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
+        if (!coverLazyOptional.isPresent() || !moduleLazyOptional.isPresent()) return;
+        ItemStack casing = coverLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
         ItemStack module = moduleLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
         customName = casing.isEmpty() || module.isEmpty() ? TITLE : Component.translatable(
                 "container." + CompressedCopper.MODID + ".machine_core.custom",

@@ -4,8 +4,8 @@ import io.github.meatwo310.compressed_copper.data.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class CoversHandler extends ItemStackHandlerPlus {
-    public CoversHandler(int size) {
+public class CoverHandler extends ItemStackHandlerPlus {
+    public CoverHandler(int size) {
         super(size);
     }
 
