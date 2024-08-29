@@ -128,6 +128,23 @@ repositories {
         url "https://jitpack.io"
         content { includeGroup "com.github.yukkukomei" }
     }
+
+    // JEI Compat
+    maven {
+        // location of the maven that hosts JEI files before January 2023
+        name = "Progwml6's maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
 }
 
 dependencies {
@@ -146,7 +163,16 @@ dependencies {
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:5440261")
+//    runtimeOnly fg.deobf("curse.maven:jei-238222:5440261")
+
+    // JEI
+    // compile against the JEI API but do not include it at runtime
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
+    // at runtime, use the full JEI jar for Forge
+    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
+
+    // another mods dependencies
     runtimeOnly fg.deobf("curse.maven:catalogue-459701:4766090")
     runtimeOnly fg.deobf("curse.maven:configured-457570:5180900")
     runtimeOnly fg.deobf("curse.maven:jade-324717:5339264")
@@ -157,6 +183,8 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:easy-villagers-400514:5153629")
     runtimeOnly fg.deobf("curse.maven:modern-ui-352491:5229575")
     runtimeOnly fg.deobf("curse.maven:jei-integration-265917:4999754")
+    runtimeOnly fg.deobf("curse.maven:torcherino-236794:4722725")
+    runtimeOnly fg.deobf("curse.maven:time-in-a-bottle-universal-895919:4744787")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

@@ -1,7 +1,9 @@
 package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.compat.jei.JEICompat;
 import io.github.meatwo310.compressed_copper.datagen.Model;
+import io.github.meatwo310.compressed_copper.item.CompressableItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -17,38 +19,48 @@ public class Items {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CompressedCopper.MODID);
     public static final Map<String, RegistryObject<Item>> ITEM_MAP = new LinkedHashMap<>();
 
-    public static final RegistryObject<Item> COMPRESSED_COPPER = add("compressed_copper",
-            () -> new Item(new Item.Properties())
-    );
-    public static final RegistryObject<Item> MACHINE_COVER = add("machine_cover",
-            () -> new Item(new Item.Properties())
-    );
+    public static final RegistryObject<Item> COMPRESSED_COPPER = addCompressable("compressed_copper");
+    public static final RegistryObject<Item> MACHINE_COVER = addCover("machine_cover");
     public static final RegistryObject<Item> TEST_MODULE = addModule("test_module");
-    public static final RegistryObject<Item> TEST_UPGRADE = add("test_upgrade",
-            () -> new Item(new Item.Properties())
-    );
+    public static final RegistryObject<Item> TEST_UPGRADE = addUpgrade("test_upgrade");
+
 
     private static RegistryObject<Item> add(String name, Supplier<Item> itemSupplier) {
-        return add(name, itemSupplier, true);
-    }
-    private static RegistryObject<Item> add(String name, Supplier<Item> itemSupplier, boolean registerItemModel) {
         RegistryObject<Item> item = ITEMS.register(name, itemSupplier);
         ITEM_MAP.put(name, item);
-        if (registerItemModel) Model.addBasicItem(item);
         return item;
+    }
+
+    private static RegistryObject<Item> addCompressable(String name) {
+        return addCompressable(name, () -> new CompressableItem(new Item.Properties()));
+    }
+
+    private static RegistryObject<Item> addCompressable(String name, Supplier<Item> itemSupplier) {
+        RegistryObject<Item> item = ITEMS.register(name, itemSupplier);
+        ITEM_MAP.put(name, item);
+        JEICompat.addUseNbt(item);
+        Model.addBasicItem(item);
+        return item;
+    }
+
+    private static RegistryObject<Item> addCover(String name) {
+        return addCompressable(name);
     }
 
     private static RegistryObject<Item> addModule(String name) {
-        RegistryObject<Item> item = ITEMS.register(name, () -> new Item(new Item.Properties()));
-        ITEM_MAP.put(name, item);
-        Model.addBasicItem(item);
+        var item = addCompressable(name);
         Blocks.addModuleBlock(name);
         return item;
+    }
+
+    private static RegistryObject<Item> addUpgrade(String name) {
+        return addCompressable(name);
     }
 
     protected static void addBlockItem(String name, Supplier<BlockItem> blockItemSupplier) {
         ITEM_MAP.put(name, ITEMS.register(name, blockItemSupplier));
     }
+
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

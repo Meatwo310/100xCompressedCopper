@@ -1,6 +1,8 @@
 package io.github.meatwo310.compressed_copper.register;
 
 import io.github.meatwo310.compressed_copper.CompressedCopper;
+import io.github.meatwo310.compressed_copper.item.ICompressableItem;
+import io.github.meatwo310.compressed_copper.item.CompressableItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,9 +16,15 @@ public class CreativeModeTabs {
     public static final RegistryObject<CreativeModeTab> COMPRESSED_COPPER_TAB = CREATIVE_MODE_TABS.register(COMPRESSED_COPPER_TAB_ID, () -> CreativeModeTab.builder()
             .title(Component.translatable(COMPRESSED_COPPER_TAB_ID))
             .icon(() -> Items.COMPRESSED_COPPER.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                Items.ITEM_MAP.forEach((name, item) -> output.accept(item.get()));
-            })
+            .displayItems((parameters, output) -> Items.ITEM_MAP.forEach((name, item) -> {
+                if (item.get() instanceof CompressableItem) {
+                    for (int i = ICompressableItem.MIN_COMPRESSED_LEVEL; i <= ICompressableItem.MAX_COMPRESSED_LEVEL; i++) {
+                        output.accept(ICompressableItem.setCompressedLevel(item.get(), i));
+                    }
+                } else {
+                    output.accept(item.get());
+                }
+            }))
             .build()
     );
 
