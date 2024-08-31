@@ -103,7 +103,7 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
             throw new IllegalArgumentException("Stacks list is larger than the inventory size");
 
         for (int i = 0; i < stacks.size(); i++) {
-            setStackInSlot(i, stacks.get(i));
+            setStackInSlot(i, stacks.get(i).copy());
         }
     }
 }

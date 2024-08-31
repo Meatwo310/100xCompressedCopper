@@ -1,13 +1,13 @@
 package io.github.meatwo310.compressed_copper.blockentity;
 
+import com.mojang.logging.LogUtils;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.config.Config;
 import io.github.meatwo310.compressed_copper.itemhandler.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
+import io.github.meatwo310.compressed_copper.recipe.CompressedMachineRecipe;
 import io.github.meatwo310.compressed_copper.register.BlockEntities;
-import io.github.meatwo310.compressed_copper.util.MachineCoreRecipe;
-import io.github.meatwo310.compressed_copper.util.RegistryItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,11 +15,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,12 +29,19 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider {
     private static final Component TITLE =
             Component.translatable("container." + CompressedCopper.MODID + ".machine_core");
+
+    public static final int SLOT_INPUT = 0;
+    public static final int SLOT_OUTPUT = 4;
+    public static final int SLOT_COVER = 8;
+    public static final int SLOT_MODULE = 9;
+    public static final int SLOT_UPGRADE = 10;
+
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 4;
     public static final int COVER_SLOTS = 1;
@@ -274,58 +281,31 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         //   1x Compacted Copper Block @ 9 -> 2x Compressed Copper Block @ 1
         // TODO: Check the JSON recipe cache
         // TODO: Progress bar
-        MachineCoreRecipe recipe = be.getValidRecipe();
-        if (recipe == null) return;
-        be.startProcessing(recipe.inputs, recipe.outputs, recipe.ticks);
+//        MachineCoreRecipe recipe = be.getValidRecipe();
+//        if (recipe == null) return;
+//        be.startProcessing(recipe.inputs, recipe.outputs, recipe.ticks);
+        Optional<CompressedMachineRecipe> optionalRecipe = be.getValidRecipe();
+        optionalRecipe.ifPresent(recipe -> {
+            LogUtils.getLogger().debug("Valid recipe found: " + recipe);
+            be.startProcessing(recipe.codec.getInputItems(), recipe.codec.getOutputItems(), recipe.codec.getMinTierTicks());
+        });
     }
 
-    @Nullable
-    private MachineCoreRecipe getValidRecipe() {
-        List<MachineCoreRecipe> recipes = new ArrayList<>();
-        recipes.add(new MachineCoreRecipe(
-                List.of(
-                        RegistryItemUtil.getRegistryItemStack("minecraft:copper_block", 9)
-                ),
-                List.of(
-                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_1")
-                ),
-                4
-        ));
-        recipes.add(new MachineCoreRecipe(
-                List.of(
-                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_1", 9)
-                ),
-                List.of(
-                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_copper_block_item_2", 1)
-                ),
-                4
-        ));
-        recipes.add(new MachineCoreRecipe(
-                List.of(
-                        new ItemStack(Items.GOLDEN_APPLE, 1),
-                        RegistryItemUtil.getRegistryItemStack("allcompressedblock:compressed_gold_block_item_1", 8)
-                ),
-                List.of(
-                        new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1)
-                ),
-                200
-        ));
-        recipes.add(new MachineCoreRecipe(
-                List.of(
-                        new ItemStack(Items.COBBLESTONE, 1)
-                ),
-                List.of(
-                        new ItemStack(Items.COBBLESTONE, 65)
-                ),
-                1
-        ));
+    private Optional<CompressedMachineRecipe> getValidRecipe() {
+        SimpleContainer container = new SimpleContainer(INPUT_SLOTS + OUTPUT_SLOTS + COVER_SLOTS + MODULE_SLOTS + UPGRADE_SLOTS);
 
-        for (MachineCoreRecipe recipe : recipes) {
-            if (recipe.inputs.stream().allMatch(this.input::hasStack))
-                return recipe;
-        }
+        for (int i = 0; i < INPUT_SLOTS; i++)
+            container.setItem(SLOT_INPUT + i, this.input.getStackInSlot(i));
+        for (int i = 0; i < OUTPUT_SLOTS; i++)
+            container.setItem(SLOT_OUTPUT + i, this.output.getStackInSlot(i));
+        for (int i = 0; i < COVER_SLOTS; i++)
+            container.setItem(SLOT_COVER + i, this.cover.getStackInSlot(i));
+        for (int i = 0; i < MODULE_SLOTS; i++)
+            container.setItem(SLOT_MODULE + i, this.module.getStackInSlot(i));
+        for (int i = 0; i < UPGRADE_SLOTS; i++)
+            container.setItem(SLOT_UPGRADE + i, this.upgrade.getStackInSlot(i));
 
-        return null;
+        return level == null ? Optional.empty() : level.getRecipeManager().getRecipeFor(CompressedMachineRecipe.Type.INSTANCE, container, level);
     }
 
     private void startProcessing(List<ItemStack> inputStacks, List<ItemStack> outputStacks, int ticks) {
@@ -352,6 +332,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.processingInput.empty();
 
         // move the processing output to the output
+        LogUtils.getLogger().debug("Move processing output to the output: {}", this.processingOutput.getAllStacks());
         for (int i = 0; i < this.processingOutput.getSlots(); i++) {
             ItemStack stack = this.processingOutput.getStackInSlot(i);
             if (stack.isEmpty()) continue;
@@ -360,11 +341,13 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         }
 
         if (this.processingOutput.isEmpty()) {
+            LogUtils.getLogger().debug("Done processing");
             this.progress = 0;
             this.maxProgress = 0;
             return true;
         } else {
             // if the output is not empty, try to move the remaining items to the input next tick
+            LogUtils.getLogger().debug("Processing output is not empty, try again next tick");
             this.progress--;
             return false;
         }

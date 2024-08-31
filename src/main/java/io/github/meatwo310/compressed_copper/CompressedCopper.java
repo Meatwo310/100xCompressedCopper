@@ -25,6 +25,7 @@ public class CompressedCopper {
         Items.register(modEventBus);
         CreativeModeTabs.register(modEventBus);
         Menus.register(modEventBus);
+        Recipes.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
 
