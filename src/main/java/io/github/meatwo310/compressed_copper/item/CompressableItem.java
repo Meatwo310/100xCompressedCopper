@@ -52,7 +52,7 @@ public class CompressableItem extends Item {
         return setCompressedLevel(new ItemStack(item), compressedLevel);
     }
 
-    @Override public static ItemStack setCompressedLevel(ItemStack itemStack, int compressedLevel) {
+    public static ItemStack setCompressedLevel(ItemStack itemStack, int compressedLevel) {
         itemStack.getOrCreateTag().putInt(COMPRESSED_LEVEL_TAG, compressedLevel);
         return itemStack;
     }
