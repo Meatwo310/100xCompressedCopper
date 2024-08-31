@@ -19,6 +19,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -96,8 +97,12 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public final LazyOptional<ProcessingHandler> processingInputLazyOptional;
     public final LazyOptional<ProcessingHandler> processingOutputLazyOptional;
 
+    protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 0;
+    public static final int DATA_SIZE = 2;
+    public static final int DATA_PROGRESS = 0;
+    public static final int DATA_MAX_PROGRESS = 1;
 
     private Component customName = TITLE;
 
@@ -120,6 +125,29 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         };
         processingInputLazyOptional = LazyOptional.of(() -> this.processingInput);
         processingOutputLazyOptional = LazyOptional.of(() -> this.processingOutput);
+        this.data = new ContainerData() {
+            @Override
+            public int get(int pIndex) {
+                return switch (pIndex) {
+                    case DATA_PROGRESS -> MachineCoreBlockEntity.this.progress;
+                    case DATA_MAX_PROGRESS -> MachineCoreBlockEntity.this.maxProgress;
+                    default -> DATA_PROGRESS;
+                };
+            }
+
+            @Override
+            public void set(int pIndex, int pValue) {
+                switch (pIndex) {
+                    case DATA_PROGRESS -> MachineCoreBlockEntity.this.progress = pValue;
+                    case DATA_MAX_PROGRESS -> MachineCoreBlockEntity.this.maxProgress = pValue;
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return DATA_SIZE;
+            }
+        };
     }
 
     public ItemStack getModule() {
@@ -251,7 +279,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory, @NotNull Player player) {
-        return new MachineCoreMenu(id, inventory, this);
+        return new MachineCoreMenu(id, inventory, this, data);
     }
 
     @SuppressWarnings("unused parameter")

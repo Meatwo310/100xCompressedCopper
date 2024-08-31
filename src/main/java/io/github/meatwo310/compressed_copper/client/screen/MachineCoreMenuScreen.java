@@ -12,6 +12,12 @@ import org.jetbrains.annotations.NotNull;
 public class MachineCoreMenuScreen extends AbstractContainerScreen<MachineCoreMenu> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(CompressedCopper.MODID, "textures/gui/machine_core_screen.png");
 //    private static final ResourceLocation TEXTURE = new ResourceLocation("minecraft", "textures/gui/container/shulker_box.png");
+    private static final int ARROW_X = 76;
+    private static final int ARROW_Y = 36;
+    private static final int FILLED_ARROW_X = 176;
+    private static final int FILLED_ARROW_Y = 0;
+    private static final int ARROW_WIDTH = 24;
+    private static final int ARROW_HEIGHT = 17;
 
     public MachineCoreMenuScreen(MachineCoreMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -20,9 +26,20 @@ public class MachineCoreMenuScreen extends AbstractContainerScreen<MachineCoreMe
     }
 
     @Override
+    protected void init() {
+        super.init();
+        this.inventoryLabelY++;
+    }
+
+    @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float tick, int x, int y) {
         renderBackground(guiGraphics);
         guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
+        int progress = this.menu.getProcessingProgress(ARROW_WIDTH);
+        if (progress > 0) {
+            guiGraphics.blit(TEXTURE, this.leftPos + ARROW_X, this.topPos + ARROW_Y, FILLED_ARROW_X, FILLED_ARROW_Y, progress, ARROW_HEIGHT);
+        }
     }
 
     @Override
