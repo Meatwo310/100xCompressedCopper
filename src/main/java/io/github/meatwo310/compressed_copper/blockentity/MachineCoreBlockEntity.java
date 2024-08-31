@@ -270,24 +270,22 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
 
+
+
         // Check if the module is valid
         // TODO: Check the module and use it to determine the processing
         if (!be.moduleLazyOptional.isPresent()) return;
         if (be.moduleLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0).isEmpty()) return;
 
         // Check the input and start processing
-        // Temporary uses hardcoded recipe:
-        //   Copper Block @ 9 -> 1x Compressed Copper Block @ 1
-        //   1x Compacted Copper Block @ 9 -> 2x Compressed Copper Block @ 1
-        // TODO: Check the JSON recipe cache
-        // TODO: Progress bar
-//        MachineCoreRecipe recipe = be.getValidRecipe();
-//        if (recipe == null) return;
-//        be.startProcessing(recipe.inputs, recipe.outputs, recipe.ticks);
         Optional<CompressedMachineRecipe> optionalRecipe = be.getValidRecipe();
         optionalRecipe.ifPresent(recipe -> {
-            LogUtils.getLogger().debug("Valid recipe found: " + recipe);
-            be.startProcessing(recipe.codec.getInputItems(), recipe.codec.getOutputItems(), recipe.codec.getMinTierTicks());
+            LogUtils.getLogger().debug("Valid recipe found: {}", recipe);
+            be.startProcessing(
+                    recipe.codec.getInputItems(),
+                    recipe.codec.getOutputItems(),
+                    CompressedMachineRecipe.getProcessingTime(be.getModule(), recipe.codec)
+            );
         });
     }
 

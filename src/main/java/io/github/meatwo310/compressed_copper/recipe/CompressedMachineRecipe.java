@@ -8,7 +8,9 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
+import io.github.meatwo310.compressed_copper.item.CompressableItem;
 import io.github.meatwo310.compressed_copper.itemhandler.ItemStackHandlerPlus;
+import io.github.meatwo310.compressed_copper.util.MathUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -58,10 +60,16 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
     @Override
     public boolean matches(SimpleContainer simpleContainer, Level level) {
         if (level.isClientSide()) return false;
+
+        ItemStack moduleItem = simpleContainer.getItem(MachineCoreBlockEntity.SLOT_MODULE);
+        int moduleCompressedLevel = CompressableItem.getCompressedLevel(moduleItem);
+        if (moduleCompressedLevel < codec.getMinTier() || moduleCompressedLevel > codec.getMaxTier()) return false;
+
         ItemStackHandlerPlus input = new ItemStackHandlerPlus(MachineCoreBlockEntity.INPUT_SLOTS);
         for (int i = 0; i < MachineCoreBlockEntity.INPUT_SLOTS; i++) {
             input.setStackInSlot(i + MachineCoreBlockEntity.SLOT_INPUT, simpleContainer.getItem(i));
         }
+
         return input.hasStacks(ingredients);
     }
 
@@ -120,6 +128,20 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
                 '}';
     }
 
+    public static int getProcessingTime(ItemStack compressableModule, CompressedMachineCodec codec) {
+        return getProcessingTime(
+                CompressableItem.getCompressedLevel(compressableModule),
+                codec.getMinTier(),
+                codec.getMaxTier(),
+                codec.getMinTierTicks(),
+                codec.getMaxTierTicks()
+        );
+    }
+
+    public static int getProcessingTime(int compressedLevel, int minTier, int maxTier, int minTierTicks, int maxTierTicks) {
+        return MathUtil.map(compressedLevel, minTier, maxTier, minTierTicks, maxTierTicks);
+    }
+
     public static class Type implements RecipeType<CompressedMachineRecipe> {
         public static final Type INSTANCE = new Type();
         public static final String ID = RECIPE_ID;
@@ -131,26 +153,46 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
 
         @Override
         public CompressedMachineRecipe fromJson(ResourceLocation recipeId, JsonObject serializedRecipe) {
-            Codec<CompressedMachineCodec> codec = RecordCodecBuilder.create(instance -> instance.group(
+            Codec<CompressedMachineCodec> codecCodec = RecordCodecBuilder.create(instance -> instance.group(
                     ForgeRegistries.ITEMS.getCodec().fieldOf("module").forGetter(CompressedMachineCodec::getModule),
-                    Codec.INT.optionalFieldOf("minTier", 1).forGetter(CompressedMachineCodec::getMinTier),
-                    Codec.INT.optionalFieldOf("maxTier", 100).forGetter(CompressedMachineCodec::getMaxTier),
+                    Codec.INT.optionalFieldOf("minTier", CompressableItem.MIN_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::getMinTier),
+                    Codec.INT.optionalFieldOf("maxTier", CompressableItem.MAX_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::getMaxTier),
                     Codec.INT.fieldOf("minTierTicks").forGetter(CompressedMachineCodec::getMinTierTicks),
                     Codec.INT.fieldOf("maxTierTicks").forGetter(CompressedMachineCodec::getMaxTierTicks),
                     ItemStack.CODEC.listOf().fieldOf("inputItems").forGetter(CompressedMachineCodec::getInputItems),
                     ItemStack.CODEC.listOf().fieldOf("outputItems").forGetter(CompressedMachineCodec::getOutputItems)
             ).apply(instance, CompressedMachineCodec::new));
 
-            DataResult<CompressedMachineCodec> parsed = codec.parse(JsonOps.INSTANCE, serializedRecipe);
-            Optional<CompressedMachineCodec> compressedMachineCodec = parsed.result();
+            DataResult<CompressedMachineCodec> parsed = codecCodec.parse(JsonOps.INSTANCE, serializedRecipe);
+            Optional<CompressedMachineCodec> optionalCodec = parsed.result();
 
-            if (compressedMachineCodec.isPresent()) {
-                return new CompressedMachineRecipe(compressedMachineCodec.get(), recipeId);
-            } else {
+            if (optionalCodec.isEmpty()) {
                 LogUtils.getLogger().error("Failed to parse compressed machine recipe");
                 parsed.error().ifPresent(partialResult -> LogUtils.getLogger().error(partialResult.message().replaceAll("; ", ";\n")));
                 return null;
             }
+
+            CompressedMachineCodec codec = optionalCodec.get();
+            if (codec.getMinTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("minTier {} must not be less than {}", codec.getMinTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
+            } else if (codec.getMinTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("minTier {} must not be greater than {}", codec.getMinTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
+            } else if (codec.getMaxTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("maxTier {} must not be less than {}", codec.getMaxTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
+            } else if (codec.getMaxTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("maxTier {} must not be greater than {}", codec.getMaxTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
+            } else if (codec.getMinTierTicks() < 1) {
+                LogUtils.getLogger().error("minTierTicks {} must not be less than 1", codec.getMinTierTicks());
+            } else if (codec.getMaxTierTicks() < 1) {
+                LogUtils.getLogger().error("maxTierTicks {} must not be less than 1", codec.getMaxTierTicks());
+            } else if (codec.getInputItems().isEmpty()){
+                LogUtils.getLogger().error("inputItems must not be empty");
+            } else if (codec.getOutputItems().isEmpty()){
+                LogUtils.getLogger().error("outputItems must not be empty");
+            } else {
+                return new CompressedMachineRecipe(optionalCodec.get(), recipeId);
+            }
+            return null;
         }
 
         @Override

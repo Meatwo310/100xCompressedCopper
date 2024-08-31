@@ -1,10 +1,10 @@
 {
   "type": "compressed_copper:compressed_machine_recipe",
   "module": "compressed_copper:test_module",
-  "minTier": 1,
+  "minTier": 0,
   "maxTier": 100,
-  "minTierTicks": 20,
-  "maxTierTicks": 20,
+  "minTierTicks": 100,
+  "maxTierTicks": 1,
   "inputItems": [
     {
       "id": "minecraft:copper_block",
