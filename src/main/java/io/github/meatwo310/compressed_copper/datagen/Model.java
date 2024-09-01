@@ -71,27 +71,6 @@ public class Model {
         protected void registerModels() {
             moduleBlocks.forEach(block -> {
                 try {
-                    /*
-                    ex:
-                    "textures": {
-                        "0": "compressed_copper:block/machine_core",
-                        "particle": "compressed_copper:block/machine_core"
-                    },
-                    "elements": [
-                        {
-                            "from": [0, 0, 0],
-                            "to": [16, 16, 16],
-                            "faces": {
-                                "north": {"uv": [0, 0, 4, 4], "texture": "#0"},
-                                "east": {"uv": [0, 4, 4, 8], "texture": "#0"},
-                                "south": {"uv": [4, 0, 8, 4], "texture": "#0"},
-                                "west": {"uv": [4, 4, 8, 8], "texture": "#0"},
-                                "up": {"uv": [4, 12, 0, 8], "texture": "#0"},
-                                "down": {"uv": [12, 0, 8, 4], "texture": "#0"}
-                            }
-                        }
-                    ],
-                     */
                     this.getBuilder(block.getId().getPath())
                             .parent(this.getExistingFile(mcLoc("block/block")))
                             .texture("0", modLoc("block/module/" + block.getId().getPath()))

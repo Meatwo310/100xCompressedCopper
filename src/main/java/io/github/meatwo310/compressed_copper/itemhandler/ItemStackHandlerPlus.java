@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+/**
+ * A custom ItemStackHandler with additional functionality for managing ItemStacks.
+ */
 public class ItemStackHandlerPlus extends ItemStackHandler {
     public ItemStackHandlerPlus() {
         super();
@@ -22,6 +25,10 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
         super(stacks);
     }
 
+    /**
+     * Retrieves all ItemStacks in the inventory, merged by their Item.
+     * @return Map of Items and their total count
+     */
     public Map<Item, Integer> getAllStacks() {
         Map<Item, Integer> stacks = new LinkedHashMap<>();
         for (int i = 0; i < getSlots(); i++) {
@@ -33,27 +40,41 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
         return stacks;
     }
 
+    /**
+     * Checks if the inventory contains the specified ItemStack.
+     * @param stack ItemStack to check
+     * @return True if the inventory has enough of the ItemStack, false otherwise
+     */
     public boolean hasStack(ItemStack stack) {
         Map<Item, Integer> stacks = getAllStacks();
         return stacks.containsKey(stack.getItem()) && stacks.get(stack.getItem()) >= stack.getCount();
     }
 
+    /**
+     * Checks if the inventory contains all specified ItemStacks.
+     * @param stacks List of ItemStacks to check
+     * @return True if the inventory has enough of all ItemStacks, false otherwise
+     */
     public boolean hasStacks(List<ItemStack> stacks) {
         return stacks.stream().allMatch(this::hasStack);
     }
 
+    /**
+     * Checks if the inventory is empty.
+     * @return True if the inventory is empty, false otherwise
+     */
     public boolean isEmpty() {
         return IntStream.range(0, getSlots())
                 .allMatch(i -> getStackInSlot(i).isEmpty());
     }
 
     /**
-     * Remove all of the ItemStack from the inventory if it has enough
-     * @param stack ItemStack to consume all
-     * @return True if the all of the ItemStack was consumed, false otherwise
+     * Consumes the entire ItemStack from the inventory if enough is available.
+     * @param stack ItemStack to consume
+     * @return True if the entire ItemStack was consumed, false otherwise
      */
     public boolean consumeAllStack(ItemStack stack) {
-        var toConsume = stack.copy();
+        ItemStack toConsume = stack.copy();
         if (!hasStack(stack)) {
             return false;
         }
@@ -73,6 +94,13 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
         return false;
     }
 
+    /**
+     * Consumes all specified ItemStacks from the inventory if available.
+     *
+     * @param stacks List of ItemStacks to consume
+     * @return True if all ItemStacks were consumed, false otherwise
+     * @throws IllegalStateException If unable to consume all ItemStacks
+     */
     public boolean consumeAllStacks(List<ItemStack> stacks) {
         if (!hasStacks(stacks)) return false;
         if (!stacks.stream().allMatch(this::consumeAllStack))
@@ -80,10 +108,23 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
         return true;
     }
 
+    /**
+     * Inserts an ItemStack into the specified slot, bypassing normal checks.
+     * @param slot Slot to insert the ItemStack
+     * @param stack ItemStack to insert
+     * @param simulate If true, the ItemStack will not be inserted
+     * @return The remaining ItemStack that could not be inserted
+     */
     public ItemStack forceInsertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         return super.insertItem(slot, stack, simulate);
     }
 
+    /**
+     * Inserts an ItemStack into available slots, bypassing normal checks.
+     * @param stack ItemStack to insert
+     * @param simulate If true, the ItemStack will not be inserted
+     * @return The remaining ItemStack that could not be inserted
+     */
     public ItemStack forceInsertItem(@NotNull ItemStack stack, boolean simulate) {
         for (int i = 0; i < getSlots(); i++) {
             stack = forceInsertItem(i, stack, simulate);
@@ -92,15 +133,24 @@ public class ItemStackHandlerPlus extends ItemStackHandler {
         return stack;
     }
 
-    public void empty() {
+    /**
+     * Clears all ItemStacks from the inventory.
+     */
+    public void clear() {
         for (int i = 0; i < getSlots(); i++) {
             setStackInSlot(i, ItemStack.EMPTY);
         }
     }
 
+    /**
+     * Copies a list of ItemStacks into the inventory.
+     *
+     * @param stacks List of ItemStacks to copy
+     * @throws IllegalArgumentException if the list size exceeds the inventory size
+     */
     public void copyItemStacks(List<ItemStack> stacks) {
         if (stacks.size() > getSlots())
-            throw new IllegalArgumentException("Stacks list is larger than the inventory size");
+            throw new IllegalArgumentException("Stacks list must not exceed inventory size");
 
         for (int i = 0; i < stacks.size(); i++) {
             setStackInSlot(i, stacks.get(i).copy());

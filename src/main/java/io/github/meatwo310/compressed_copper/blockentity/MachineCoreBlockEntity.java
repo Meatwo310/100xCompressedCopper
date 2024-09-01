@@ -298,10 +298,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
 
-
-
         // Check if the module is valid
-        // TODO: Check the module and use it to determine the processing
         if (!be.moduleLazyOptional.isPresent()) return;
         if (be.moduleLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0).isEmpty()) return;
 
@@ -339,6 +336,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.processingInput.copyItemStacks(inputStacks);
         this.processingOutput.copyItemStacks(outputStacks);
         this.input.consumeAllStacks(inputStacks);
+        setChanged();
     }
 
     private boolean isProcessing() {
@@ -351,11 +349,12 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
 
     private void increaseProgress() {
         this.progress++;
+        setChanged();
     }
 
     private boolean finishProcessing() {
         // empty the processing input
-        this.processingInput.empty();
+        this.processingInput.clear();
 
         // move the processing output to the output
         LogUtils.getLogger().debug("Move processing output to the output: {}", this.processingOutput.getAllStacks());
@@ -370,11 +369,13 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             LogUtils.getLogger().debug("Done processing");
             this.progress = 0;
             this.maxProgress = 0;
+            setChanged();
             return true;
         } else {
             // if the output is not empty, try to move the remaining items to the input next tick
             LogUtils.getLogger().debug("Processing output is not empty, try again next tick");
             this.progress--;
+            setChanged();
             return false;
         }
     }

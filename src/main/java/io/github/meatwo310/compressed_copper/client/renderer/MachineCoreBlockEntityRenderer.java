@@ -2,7 +2,6 @@ package io.github.meatwo310.compressed_copper.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
-import io.github.meatwo310.compressed_copper.util.ModulesUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -11,9 +10,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 public class MachineCoreBlockEntityRenderer implements BlockEntityRenderer<MachineCoreBlockEntity> {
@@ -22,7 +23,7 @@ public class MachineCoreBlockEntityRenderer implements BlockEntityRenderer<Machi
 
     @Override
     public void render(MachineCoreBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay) {
-        ResourceLocation moduleBlockLoc = ModulesUtil.getModuleBlockLoc(blockEntity.getModule());
+        ResourceLocation moduleBlockLoc = getModuleBlockLoc(blockEntity.getModule());
         if (moduleBlockLoc == null) return;
 
         BlockRenderDispatcher blockEntityRenderers = Minecraft.getInstance().getBlockRenderer();
@@ -65,5 +66,13 @@ public class MachineCoreBlockEntityRenderer implements BlockEntityRenderer<Machi
                 RenderType.solid()
         );
         poseStack.popPose();
+    }
+
+    @Nullable
+    public static ResourceLocation getModuleBlockLoc(ItemStack itemStack) {
+        if (itemStack.isEmpty()) return null;
+        ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(itemStack.getItem());
+        if (registryName == null) return null;
+        return new ResourceLocation(registryName + "_block");
     }
 }
