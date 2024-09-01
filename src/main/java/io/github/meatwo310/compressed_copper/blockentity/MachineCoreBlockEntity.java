@@ -4,6 +4,9 @@ import com.mojang.logging.LogUtils;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.config.Config;
+import io.github.meatwo310.compressed_copper.handler.fluid.FluidsIOHandler;
+import io.github.meatwo310.compressed_copper.handler.fluid.FluidsInputHandler;
+import io.github.meatwo310.compressed_copper.handler.fluid.FluidsOutputHandler;
 import io.github.meatwo310.compressed_copper.handler.item.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import io.github.meatwo310.compressed_copper.recipe.CompressedMachineRecipe;
@@ -47,14 +50,19 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public static final int SLOT_MODULE = SLOT_OUTPUT + OUTPUT_SLOTS;
     public static final int SLOT_UPGRADE = SLOT_MODULE + MODULE_SLOTS;
 
-    private final ItemInputHandler input = new ItemInputHandler(INPUT_SLOTS) {
+    public static final int FLUID_INPUT_TANKS = 4;
+    public static final int FLUID_OUTPUT_TANKS = 4;
+
+    public static final int FLUID_TANK_CAPACITY = Integer.MAX_VALUE;
+
+    private final ItemStackInputHandler input = new ItemStackInputHandler(INPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
         }
     };
-    private final ItemOutputHandler output = new ItemOutputHandler(OUTPUT_SLOTS) {
+    private final ItemStackOutputHandler output = new ItemStackOutputHandler(OUTPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -78,13 +86,29 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     };
     private final ProcessingHandler processingInput;
     private final ProcessingHandler processingOutput;
+    private final FluidsInputHandler fluidInput = new FluidsInputHandler(FLUID_INPUT_TANKS, FLUID_TANK_CAPACITY) {
+        @Override
+        protected void onContentsChanged(int tank) {
+            super.onContentsChanged(tank);
+            setChanged();
+        }
+    };
+    private final FluidsOutputHandler fluidOutput = new FluidsOutputHandler(FLUID_OUTPUT_TANKS, FLUID_TANK_CAPACITY) {
+        @Override
+        protected void onContentsChanged(int tank) {
+            super.onContentsChanged(tank);
+            setChanged();
+        }
+    };
 
-    public final LazyOptional<ItemInputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
-    public final LazyOptional<ItemOutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
+    public final LazyOptional<ItemStackInputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
+    public final LazyOptional<ItemStackOutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
     public final LazyOptional<ModuleHandler> moduleLazyOptional = LazyOptional.of(() -> this.module);
     public final LazyOptional<UpgradeHandler> upgradeLazyOptional = LazyOptional.of(() -> this.upgrade);
     public final LazyOptional<ProcessingHandler> processingInputLazyOptional;
     public final LazyOptional<ProcessingHandler> processingOutputLazyOptional;
+    public final LazyOptional<FluidsInputHandler> fluidInputLazyOptional = LazyOptional.of(() -> this.fluidInput);
+    public final LazyOptional<FluidsOutputHandler> fluidOutputLazyOptional = LazyOptional.of(() -> this.fluidOutput);
 
     protected final ContainerData data;
     private int progress = 0;
@@ -151,11 +175,18 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
-        if (cap != ForgeCapabilities.ITEM_HANDLER) return super.getCapability(cap, side);
-        return LazyOptional.of(() -> new ItemIOHandler(
-                inputLazyOptional.orElse(new ItemInputHandler(INPUT_SLOTS)),
-                outputLazyOptional.orElse(new ItemOutputHandler(OUTPUT_SLOTS))
+        if (cap == ForgeCapabilities.ITEM_HANDLER) return LazyOptional.of(() -> new ItemStackIOHandler(
+                inputLazyOptional.orElse(new ItemStackInputHandler(INPUT_SLOTS)),
+                outputLazyOptional.orElse(new ItemStackOutputHandler(OUTPUT_SLOTS))
         )).cast();
+        if (cap == ForgeCapabilities.FLUID_HANDLER) return LazyOptional.of(() -> new FluidsIOHandler(
+                fluidInputLazyOptional.orElse(new FluidsInputHandler(FLUID_INPUT_TANKS, FLUID_TANK_CAPACITY)),
+                fluidOutputLazyOptional.orElse(new FluidsOutputHandler(FLUID_OUTPUT_TANKS, FLUID_TANK_CAPACITY))
+        )).cast();
+//        if (cap == ForgeCapabilities.FLUID_HANDLER) return fluidInputLazyOptional.cast();
+//        if (cap == ForgeCapabilities.FLUID_HANDLER) return fluidTankLazyOptional.cast();
+
+        return super.getCapability(cap, side);
     }
 
     @Override
@@ -180,6 +211,12 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         );
         if (data.contains("processingOutput")) this.processingOutputLazyOptional.ifPresent(handler ->
                 handler.deserializeNBT(data.getCompound("processingOutput"))
+        );
+        if (data.contains("fluidInput")) this.fluidInputLazyOptional.ifPresent(tank ->
+                tank.deserializeNBT(data.getCompound("fluidInput"))
+        );
+        if (data.contains("fluidOutput")) this.fluidOutputLazyOptional.ifPresent(tank ->
+                tank.deserializeNBT(data.getCompound("fluidOutput"))
         );
         if (data.contains("progress")) this.progress = data.getInt("progress");
         if (data.contains("maxProgress")) this.maxProgress = data.getInt("maxProgress");
@@ -208,6 +245,12 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.processingOutputLazyOptional.ifPresent(handler -> {
             if (!handler.isEmpty()) data.put("processingOutput", handler.serializeNBT());
         });
+        this.fluidInputLazyOptional.ifPresent(tank -> {
+            if (!tank.isEmpty()) data.put("fluidInput", tank.serializeNBT());
+        });
+        this.fluidOutputLazyOptional.ifPresent(tank -> {
+            if (!tank.isEmpty()) data.put("fluidOutput", tank.serializeNBT());
+        });
         if (this.progress > 0)  data.putInt("progress", this.progress);
         if (this.maxProgress > 0) data.putInt("maxProgress", this.maxProgress);
 
@@ -222,6 +265,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
         this.processingOutputLazyOptional.invalidate();
+        this.fluidInputLazyOptional.invalidate();
+        this.fluidOutputLazyOptional.invalidate();
         super.setRemoved();
     }
 
@@ -241,6 +286,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
         this.processingOutputLazyOptional.invalidate();
+        this.fluidInputLazyOptional.invalidate();
+        this.fluidOutputLazyOptional.invalidate();
     }
 
     public void setCustomName() {
