@@ -54,11 +54,14 @@ public class MachineCoreMenu extends AbstractContainerMenu {
 
     private void createMachineCoreSlots(MachineCoreBlockEntity blockEntity) {
         blockEntity.moduleLazyOptional.ifPresent(inventory ->
-                this.addSlot(new SlotItemHandler(inventory, 0, 8, 54))
+                this.addSlot(new SlotItemHandler(inventory, 0, 8, 18))
         );
         blockEntity.upgradeLazyOptional.ifPresent(inventory -> {
-            for (int i = 0; i < 3; i++) {
-                this.addSlot(new SlotItemHandler(inventory, i, 152, 18 + i * 18));
+            for (int i = 0; i < 2; i++) {
+                this.addSlot(new SlotItemHandler(inventory, i, 8, 36 + i * 18));
+            }
+            for (int j = 0; j < 3; j++) {
+                this.addSlot(new SlotItemHandler(inventory, j + 2, 152, 18 + j * 18));
             }
         });
         blockEntity.inputLazyOptional.ifPresent(inventory -> {

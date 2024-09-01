@@ -40,7 +40,7 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 4;
     public static final int MODULE_SLOTS = 1;
-    public static final int UPGRADE_SLOTS = 3;
+    public static final int UPGRADE_SLOTS = 5;
 
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_OUTPUT = SLOT_INPUT + INPUT_SLOTS;
