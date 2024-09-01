@@ -125,7 +125,6 @@ public class CompressedMachineRecipe implements Recipe<NotContainer> {
 
     @Override
     public String toString() {
-        // TODO: Update this if necessary
         return "CompressedMachineRecipe{" +
                 "codec=" + codec +
                 ", ingredients=" + ingredients +
