@@ -23,12 +23,12 @@ public class MachineCoreMenuScreen extends AbstractContainerScreen<MachineCoreMe
         super(menu, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.inventoryLabelY++;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.inventoryLabelY++;
     }
 
     @Override

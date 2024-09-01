@@ -7,9 +7,12 @@ import io.github.meatwo310.compressed_copper.config.Config;
 import io.github.meatwo310.compressed_copper.handler.fluid.FluidsIOHandler;
 import io.github.meatwo310.compressed_copper.handler.fluid.FluidsInputHandler;
 import io.github.meatwo310.compressed_copper.handler.fluid.FluidsOutputHandler;
+import io.github.meatwo310.compressed_copper.handler.fluid.ProcessingFluidHandler;
 import io.github.meatwo310.compressed_copper.handler.item.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import io.github.meatwo310.compressed_copper.recipe.CompressedMachineRecipe;
+import io.github.meatwo310.compressed_copper.recipe.MachineData;
+import io.github.meatwo310.compressed_copper.recipe.NotContainer;
 import io.github.meatwo310.compressed_copper.register.BlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,6 +32,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +48,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public static final int OUTPUT_SLOTS = 4;
     public static final int MODULE_SLOTS = 1;
     public static final int UPGRADE_SLOTS = 5;
-
-    public static final int SLOT_INPUT = 0;
-    public static final int SLOT_OUTPUT = SLOT_INPUT + INPUT_SLOTS;
-    public static final int SLOT_MODULE = SLOT_OUTPUT + OUTPUT_SLOTS;
-    public static final int SLOT_UPGRADE = SLOT_MODULE + MODULE_SLOTS;
 
     public static final int FLUID_INPUT_TANKS = 4;
     public static final int FLUID_OUTPUT_TANKS = 4;
@@ -100,6 +99,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
         }
     };
+    private final ProcessingFluidHandler processingFluidInput;
+    private final ProcessingFluidHandler processingFluidOutput;
 
     public final LazyOptional<ItemStackInputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
     public final LazyOptional<ItemStackOutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
@@ -109,6 +110,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public final LazyOptional<ProcessingHandler> processingOutputLazyOptional;
     public final LazyOptional<FluidsInputHandler> fluidInputLazyOptional = LazyOptional.of(() -> this.fluidInput);
     public final LazyOptional<FluidsOutputHandler> fluidOutputLazyOptional = LazyOptional.of(() -> this.fluidOutput);
+    public final LazyOptional<ProcessingFluidHandler> processingFluidInputLazyOptional;
+    public final LazyOptional<ProcessingFluidHandler> processingFluidOutputLazyOptional;
 
     protected final ContainerData data;
     private int progress = 0;
@@ -136,8 +139,26 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
                 setChanged();
             }
         };
+        processingFluidInput = new ProcessingFluidHandler(Config.MACHINE_CORE_MAX_PROCESSING_BUFFER.get(), FLUID_TANK_CAPACITY) {
+            @Override
+            protected void onContentsChanged(int tank) {
+                super.onContentsChanged(tank);
+                setChanged();
+            }
+        };
+        processingFluidOutput = new ProcessingFluidHandler(Config.MACHINE_CORE_MAX_PROCESSING_BUFFER.get(), FLUID_TANK_CAPACITY) {
+            @Override
+            protected void onContentsChanged(int tank) {
+                super.onContentsChanged(tank);
+                setChanged();
+            }
+        };
+
         processingInputLazyOptional = LazyOptional.of(() -> this.processingInput);
         processingOutputLazyOptional = LazyOptional.of(() -> this.processingOutput);
+        processingFluidInputLazyOptional = LazyOptional.of(() -> this.processingFluidInput);
+        processingFluidOutputLazyOptional = LazyOptional.of(() -> this.processingFluidOutput);
+
         this.data = new ContainerData() {
             @Override
             public int get(int pIndex) {
@@ -183,8 +204,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
                 fluidInputLazyOptional.orElse(new FluidsInputHandler(FLUID_INPUT_TANKS, FLUID_TANK_CAPACITY)),
                 fluidOutputLazyOptional.orElse(new FluidsOutputHandler(FLUID_OUTPUT_TANKS, FLUID_TANK_CAPACITY))
         )).cast();
-//        if (cap == ForgeCapabilities.FLUID_HANDLER) return fluidInputLazyOptional.cast();
-//        if (cap == ForgeCapabilities.FLUID_HANDLER) return fluidTankLazyOptional.cast();
 
         return super.getCapability(cap, side);
     }
@@ -336,33 +355,41 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         optionalRecipe.ifPresent(recipe -> {
             LogUtils.getLogger().debug("Valid recipe found: {}", recipe);
             be.startProcessing(
-                    recipe.codec.getInputItems(),
-                    recipe.codec.getOutputItems(),
+                    recipe.codec.inputItems(),
+                    recipe.codec.outputItems(),
+                    recipe.codec.inputFluids(),
+                    recipe.codec.outputFluids(),
                     CompressedMachineRecipe.getProcessingTime(be.getModule(), recipe.codec)
             );
         });
     }
 
     private Optional<CompressedMachineRecipe> getValidRecipe() {
-        SimpleContainer container = new SimpleContainer(INPUT_SLOTS + OUTPUT_SLOTS + MODULE_SLOTS + UPGRADE_SLOTS);
-
-        for (int i = 0; i < INPUT_SLOTS; i++)
-            container.setItem(SLOT_INPUT + i, this.input.getStackInSlot(i));
-        for (int i = 0; i < OUTPUT_SLOTS; i++)
-            container.setItem(SLOT_OUTPUT + i, this.output.getStackInSlot(i));
-        for (int i = 0; i < MODULE_SLOTS; i++)
-            container.setItem(SLOT_MODULE + i, this.module.getStackInSlot(i));
-        for (int i = 0; i < UPGRADE_SLOTS; i++)
-            container.setItem(SLOT_UPGRADE + i, this.upgrade.getStackInSlot(i));
-
-        return level == null ? Optional.empty() : level.getRecipeManager().getRecipeFor(CompressedMachineRecipe.Type.INSTANCE, container, level);
+        if (level == null) return Optional.empty();
+        return level.getRecipeManager().getRecipeFor(
+                CompressedMachineRecipe.Type.INSTANCE,
+                new NotContainer(new MachineData(
+                        input,
+                        output,
+                        module,
+                        upgrade,
+                        processingInput,
+                        processingOutput,
+                        fluidInput,
+                        fluidOutput
+                )),
+                level
+        );
     }
 
-    private void startProcessing(List<ItemStack> inputStacks, List<ItemStack> outputStacks, int ticks) {
+    private void startProcessing(List<ItemStack> inputStacks, List<ItemStack> outputStacks, List<FluidStack> inputFluids, List<FluidStack> outputFluids, int ticks) {
         this.maxProgress = ticks;
         this.processingInput.copyItemStacks(inputStacks);
         this.processingOutput.copyItemStacks(outputStacks);
+        this.processingFluidInput.fillAll(inputFluids);
+        this.processingFluidOutput.fillAll(outputFluids);
         this.input.consumeAllStacks(inputStacks);
+        this.fluidInput.drainAll(inputFluids, IFluidHandler.FluidAction.EXECUTE);
         setChanged();
     }
 
@@ -384,23 +411,28 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.processingInput.clear();
 
         // move the processing output to the output
-        LogUtils.getLogger().debug("Move processing output to the output: {}", this.processingOutput.getAllStacks());
         for (int i = 0; i < this.processingOutput.getSlots(); i++) {
             ItemStack stack = this.processingOutput.getStackInSlot(i);
             if (stack.isEmpty()) continue;
             ItemStack remaining = this.output.forceInsertItem(stack, false);
             this.processingOutput.setStackInSlot(i, remaining);
         }
+        for (int i = 0; i < this.processingFluidOutput.getTanks(); i++) {
+            FluidStack stack = this.processingFluidOutput.getFluidInTank(i);
+            if (stack.isEmpty()) continue;
+            int remaining = this.fluidOutput.fill(stack, IFluidHandler.FluidAction.EXECUTE);
+            this.processingFluidOutput.drain(remaining, IFluidHandler.FluidAction.EXECUTE);
+        }
 
-        if (this.processingOutput.isEmpty()) {
-            LogUtils.getLogger().debug("Done processing");
+        if (this.processingOutput.isEmpty() && this.processingFluidOutput.isEmpty()) {
+            LogUtils.getLogger().debug("Processing done!");
             this.progress = 0;
             this.maxProgress = 0;
             setChanged();
             return true;
         } else {
             // if the output is not empty, try to move the remaining items to the input next tick
-            LogUtils.getLogger().debug("Processing output is not empty, try again next tick");
+            LogUtils.getLogger().debug("Cannot output result, try again next tick");
             this.progress--;
             setChanged();
             return false;

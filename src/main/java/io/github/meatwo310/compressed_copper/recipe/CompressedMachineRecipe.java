@@ -7,16 +7,15 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
-import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
+import io.github.meatwo310.compressed_copper.handler.fluid.FluidsInputHandler;
+import io.github.meatwo310.compressed_copper.handler.item.ItemStackInputHandler;
 import io.github.meatwo310.compressed_copper.item.CompressableItem;
-import io.github.meatwo310.compressed_copper.handler.item.ItemStackHandlerPlus;
 import io.github.meatwo310.compressed_copper.util.MathUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -24,15 +23,17 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
+public class CompressedMachineRecipe implements Recipe<NotContainer> {
     public static final String RECIPE_ID = "compressed_machine_recipe";
 
     public final CompressedMachineCodec codec;
@@ -43,13 +44,13 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
     public CompressedMachineRecipe(CompressedMachineCodec compressedMachineCodec, ResourceLocation recipeId) {
         this.codec = compressedMachineCodec;
         this.ingredients.addAll(codec
-                .getInputItems()
+                .inputItems()
                 .stream()
                 .map(ItemStack::copy)
                 .toList()
         );
         this.resultItems.addAll(codec
-                .getOutputItems()
+                .outputItems()
                 .stream()
                 .map(ItemStack::copy)
                 .toList()
@@ -58,24 +59,31 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public boolean matches(SimpleContainer simpleContainer, Level level) {
+    public boolean matches(NotContainer notContainer, Level level) {
         if (level.isClientSide()) return false;
 
-        ItemStack moduleItem = simpleContainer.getItem(MachineCoreBlockEntity.SLOT_MODULE);
+        MachineData machineData = notContainer.getMachineData();
+
+        // check module compressed level
+        ItemStack moduleItem = machineData.module().getStackInSlot(0);
         int moduleCompressedLevel = CompressableItem.getCompressedLevel(moduleItem);
-        if (moduleCompressedLevel < codec.getMinTier() || moduleCompressedLevel > codec.getMaxTier()) return false;
+        if (moduleCompressedLevel < this.codec.minTier() || moduleCompressedLevel > this.codec.maxTier()) return false;
 
-        ItemStackHandlerPlus input = new ItemStackHandlerPlus(MachineCoreBlockEntity.INPUT_SLOTS);
-        for (int i = 0; i < MachineCoreBlockEntity.INPUT_SLOTS; i++) {
-            input.setStackInSlot(i + MachineCoreBlockEntity.SLOT_INPUT, simpleContainer.getItem(i));
-        }
+        // check input items
+        ItemStackInputHandler input = machineData.input();
+        if (!input.hasStacks(this.ingredients)) return false;
 
-        return input.hasStacks(ingredients);
+        // check input fluids
+        FluidsInputHandler fluidInput = machineData.fluidInput();
+        if (!fluidInput.containsFluids(this.codec.inputFluids())) return false;
+
+        return true;
     }
 
     @Override
-    public ItemStack assemble(SimpleContainer simpleContainer, RegistryAccess registryAccess) {
-        return this.resultItems.get(0).copy();
+    public ItemStack assemble(NotContainer simpleContainer, RegistryAccess registryAccess) {
+//        return this.resultItems.get(0).copy();
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -96,12 +104,9 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return codec.getOutputItems().get(0).copy();
+//        return codec.outputItems().get(0).copy();
+        return ItemStack.EMPTY;
     }
-
-//    public NonNullList<ItemStack> getResultItems() {
-//        return resultItems;
-//    }
 
     @Override
     public ResourceLocation getId() {
@@ -120,6 +125,7 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public String toString() {
+        // TODO: Update this if necessary
         return "CompressedMachineRecipe{" +
                 "codec=" + codec +
                 ", ingredients=" + ingredients +
@@ -128,13 +134,13 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
                 '}';
     }
 
-    public static int getProcessingTime(ItemStack compressableModule, CompressedMachineCodec codec) {
+    public static int getProcessingTime(ItemStack compressibleModule, CompressedMachineCodec codec) {
         return getProcessingTime(
-                CompressableItem.getCompressedLevel(compressableModule),
-                codec.getMinTier(),
-                codec.getMaxTier(),
-                codec.getMinTierTicks(),
-                codec.getMaxTierTicks()
+                CompressableItem.getCompressedLevel(compressibleModule),
+                codec.minTier(),
+                codec.maxTier(),
+                codec.minTierTicks(),
+                codec.maxTierTicks()
         );
     }
 
@@ -154,13 +160,15 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
         @Override
         public CompressedMachineRecipe fromJson(ResourceLocation recipeId, JsonObject serializedRecipe) {
             Codec<CompressedMachineCodec> codecCodec = RecordCodecBuilder.create(instance -> instance.group(
-                    ForgeRegistries.ITEMS.getCodec().fieldOf("module").forGetter(CompressedMachineCodec::getModule),
-                    Codec.INT.optionalFieldOf("minTier", CompressableItem.MIN_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::getMinTier),
-                    Codec.INT.optionalFieldOf("maxTier", CompressableItem.MAX_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::getMaxTier),
-                    Codec.INT.fieldOf("minTierTicks").forGetter(CompressedMachineCodec::getMinTierTicks),
-                    Codec.INT.fieldOf("maxTierTicks").forGetter(CompressedMachineCodec::getMaxTierTicks),
-                    ItemStack.CODEC.listOf().fieldOf("inputItems").forGetter(CompressedMachineCodec::getInputItems),
-                    ItemStack.CODEC.listOf().fieldOf("outputItems").forGetter(CompressedMachineCodec::getOutputItems)
+                    ForgeRegistries.ITEMS.getCodec().fieldOf("module").forGetter(CompressedMachineCodec::module),
+                    Codec.INT.optionalFieldOf("minTier", CompressableItem.MIN_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::minTier),
+                    Codec.INT.optionalFieldOf("maxTier", CompressableItem.MAX_COMPRESSED_LEVEL).forGetter(CompressedMachineCodec::maxTier),
+                    Codec.INT.fieldOf("minTierTicks").forGetter(CompressedMachineCodec::minTierTicks),
+                    Codec.INT.fieldOf("maxTierTicks").forGetter(CompressedMachineCodec::maxTierTicks),
+                    ItemStack.CODEC.listOf().optionalFieldOf("inputItems", List.of()).forGetter(CompressedMachineCodec::inputItems),
+                    ItemStack.CODEC.listOf().optionalFieldOf("outputItems", List.of()).forGetter(CompressedMachineCodec::outputItems),
+                    FluidStack.CODEC.listOf().optionalFieldOf("inputFluids", List.of()).forGetter(CompressedMachineCodec::inputFluids),
+                    FluidStack.CODEC.listOf().optionalFieldOf("outputFluids", List.of()).forGetter(CompressedMachineCodec::outputFluids)
             ).apply(instance, CompressedMachineCodec::new));
 
             DataResult<CompressedMachineCodec> parsed = codecCodec.parse(JsonOps.INSTANCE, serializedRecipe);
@@ -173,22 +181,26 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
             }
 
             CompressedMachineCodec codec = optionalCodec.get();
-            if (codec.getMinTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
-                LogUtils.getLogger().error("minTier {} must not be less than {}", codec.getMinTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
-            } else if (codec.getMinTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
-                LogUtils.getLogger().error("minTier {} must not be greater than {}", codec.getMinTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
-            } else if (codec.getMaxTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
-                LogUtils.getLogger().error("maxTier {} must not be less than {}", codec.getMaxTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
-            } else if (codec.getMaxTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
-                LogUtils.getLogger().error("maxTier {} must not be greater than {}", codec.getMaxTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
-            } else if (codec.getMinTierTicks() < 1) {
-                LogUtils.getLogger().error("minTierTicks {} must not be less than 1", codec.getMinTierTicks());
-            } else if (codec.getMaxTierTicks() < 1) {
-                LogUtils.getLogger().error("maxTierTicks {} must not be less than 1", codec.getMaxTierTicks());
-            } else if (codec.getInputItems().isEmpty()){
-                LogUtils.getLogger().error("inputItems must not be empty");
-            } else if (codec.getOutputItems().isEmpty()){
-                LogUtils.getLogger().error("outputItems must not be empty");
+            if (codec.minTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("minTier {} must not be less than {}", codec.minTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
+            } else if (codec.minTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("minTier {} must not be greater than {}", codec.minTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
+            } else if (codec.maxTier() < CompressableItem.MIN_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("maxTier {} must not be less than {}", codec.maxTier(), CompressableItem.MIN_COMPRESSED_LEVEL);
+            } else if (codec.maxTier() > CompressableItem.MAX_COMPRESSED_LEVEL) {
+                LogUtils.getLogger().error("maxTier {} must not be greater than {}", codec.maxTier(), CompressableItem.MAX_COMPRESSED_LEVEL);
+            } else if (codec.minTierTicks() < 1) {
+                LogUtils.getLogger().error("minTierTicks {} must not be less than 1", codec.minTierTicks());
+            } else if (codec.maxTierTicks() < 1) {
+                LogUtils.getLogger().error("maxTierTicks {} must not be less than 1", codec.maxTierTicks());
+            } else if (codec.inputItems().isEmpty() &&
+                    codec.inputFluids().isEmpty()
+            ) {
+                LogUtils.getLogger().error("recipes must have at least one input");
+            } else if (codec.outputItems().isEmpty() &&
+                    codec.outputFluids().isEmpty()
+            ) {
+                LogUtils.getLogger().error("recipes must have at least one output");
             } else {
                 return new CompressedMachineRecipe(optionalCodec.get(), recipeId);
             }
@@ -202,31 +214,54 @@ public class CompressedMachineRecipe implements Recipe<SimpleContainer> {
             int maxTier = buf.readInt();
             int minTierTicks = buf.readInt();
             int maxTierTicks = buf.readInt();
-            int inputSize = buf.readVarInt();
+            int inputItemsSize = buf.readVarInt();
             NonNullList<ItemStack> inputItems = NonNullList.create();
-            for (int i = 0; i < inputSize; i++) {
+            for (int i = 0; i < inputItemsSize; i++) {
                 inputItems.add(buf.readItem());
             }
-            int outputSize = buf.readVarInt();
+            int outputItemsSize = buf.readVarInt();
             NonNullList<ItemStack> outputItems = NonNullList.create();
-            for (int i = 0; i < outputSize; i++) {
+            for (int i = 0; i < outputItemsSize; i++) {
                 outputItems.add(buf.readItem());
             }
-            CompressedMachineCodec codec = new CompressedMachineCodec(module, minTier, maxTier, minTierTicks, maxTierTicks, inputItems, outputItems);
+            int inputFluidsSize = buf.readVarInt();
+            NonNullList<FluidStack> inputFluids = NonNullList.create();
+            for (int i = 0; i < inputFluidsSize; i++) {
+                inputFluids.add(buf.readFluidStack());
+            }
+            int outputFluidsSize = buf.readVarInt();
+            NonNullList<FluidStack> outputFluids = NonNullList.create();
+            for (int i = 0; i < outputFluidsSize; i++) {
+                outputFluids.add(buf.readFluidStack());
+            }
+            CompressedMachineCodec codec = new CompressedMachineCodec(module,
+                    minTier,
+                    maxTier,
+                    minTierTicks,
+                    maxTierTicks,
+                    inputItems,
+                    outputItems,
+                    inputFluids,
+                    outputFluids
+            );
             return new CompressedMachineRecipe(codec, resourceLocation);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buf, CompressedMachineRecipe recipe) {
-            buf.writeItemStack(recipe.codec.getModule().getDefaultInstance(), false);
-            buf.writeInt(recipe.codec.getMinTier());
-            buf.writeInt(recipe.codec.getMaxTier());
-            buf.writeInt(recipe.codec.getMinTierTicks());
-            buf.writeInt(recipe.codec.getMaxTierTicks());
-            buf.writeVarInt(recipe.codec.getInputItems().size());
-            recipe.codec.getInputItems().stream().map(Ingredient::of).forEach(ingredient -> ingredient.toNetwork(buf));
-            buf.writeVarInt(recipe.codec.getOutputItems().size());
-            recipe.codec.getOutputItems().stream().map(Ingredient::of).forEach(ingredient -> ingredient.toNetwork(buf));
+            buf.writeItemStack(recipe.codec.module().getDefaultInstance(), false);
+            buf.writeInt(recipe.codec.minTier());
+            buf.writeInt(recipe.codec.maxTier());
+            buf.writeInt(recipe.codec.minTierTicks());
+            buf.writeInt(recipe.codec.maxTierTicks());
+            buf.writeVarInt(recipe.codec.inputItems().size());
+            recipe.codec.inputItems().stream().map(Ingredient::of).forEach(ingredient -> ingredient.toNetwork(buf));
+            buf.writeVarInt(recipe.codec.outputItems().size());
+            recipe.codec.outputItems().stream().map(Ingredient::of).forEach(ingredient -> ingredient.toNetwork(buf));
+            buf.writeVarInt(recipe.codec.inputFluids().size());
+            recipe.codec.inputFluids().forEach(fluidStack -> fluidStack.writeToPacket(buf));
+            buf.writeVarInt(recipe.codec.outputFluids().size());
+            recipe.codec.outputFluids().forEach(fluidStack -> fluidStack.writeToPacket(buf));
         }
     }
 }

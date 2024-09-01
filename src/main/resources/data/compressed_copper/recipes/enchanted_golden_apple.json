@@ -1,0 +1,44 @@
+{
+  "type": "compressed_copper:compressed_machine_recipe",
+  "module": "compressed_copper:test_module",
+  "minTier": 0,
+  "maxTier": 100,
+  "minTierTicks": 100,
+  "maxTierTicks": 1,
+  "inputItems": [
+    {
+      "id": "minecraft:golden_apple",
+      "Count": 1
+    },
+    {
+      "id": "minecraft:gold_ingot",
+      "Count": 64
+    }
+  ],
+  "inputFluids": [
+    {
+      "FluidName": "minecraft:lava",
+      "Amount": 4000
+    },
+    {
+      "FluidName": "minecraft:milk",
+      "Amount": 4000
+    }
+  ],
+  "outputItems": [
+    {
+      "id": "minecraft:enchanted_golden_apple",
+      "Count": 1
+    },
+    {
+      "id": "minecraft:golden_nugget",
+      "Count": 128
+    }
+  ],
+  "outputFluids": [
+    {
+      "FluidName": "minecraft:water",
+      "Amount": 1000
+    }
+  ]
+}

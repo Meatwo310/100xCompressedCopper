@@ -1,0 +1,26 @@
+{
+  "type": "compressed_copper:compressed_machine_recipe",
+  "module": "compressed_copper:test_module",
+  "minTier": 0,
+  "maxTier": 100,
+  "minTierTicks": 100,
+  "maxTierTicks": 1,
+  "inputItems": [
+    {
+      "id": "minecraft:copper_block",
+      "Count": 1
+    }
+  ],
+  "inputFluids": [
+    {
+      "FluidName": "minecraft:water",
+      "Amount": 1000
+    }
+  ],
+  "outputItems": [
+    {
+      "id": "minecraft:exposed_copper",
+      "Count": 1
+    }
+  ]
+}

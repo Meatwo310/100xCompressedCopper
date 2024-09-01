@@ -105,6 +105,60 @@ public class FluidsHandler implements IFluidHandler {
         return drain(fluidStack, fluidAction);
     }
 
+    /**
+     * Clears all tanks and fills them with the given FluidStacks.
+     * @param fluidStacks List of FluidStacks to fill the tanks
+     */
+    public void fillAll(List<FluidStack> fluidStacks) {
+        if (fluidStacks.size() > this.tanks) throw new IllegalArgumentException("fluidStacks must not be larger than FluidsHandler tanks");
+        this.clear();
+        this.fluidStacks.addAll(fluidStacks.stream().map(FluidStack::copy).toList());
+        while (this.fluidStacks.size() < tanks) {
+            this.fluidStacks.add(FluidStack.EMPTY);
+        }
+    }
+
+    /**
+     * Drains all tanks of the given FluidStacks.
+     * @param fluidStacks List of FluidStacks to drain
+     * @param fluidAction FluidAction to perform
+     * @return True if all FluidStacks were drained, false otherwise
+     */
+    public boolean drainAll(List<FluidStack> fluidStacks, FluidAction fluidAction) {
+        return fluidStacks.stream()
+                .map(fluidStack -> this.drain(fluidStack, fluidAction))
+                .filter(fluidStack -> !fluidStack.isEmpty())
+                .toList()
+                .isEmpty();
+    }
+
+    /**
+     * Clears all tanks.
+     */
+    private void clear() {
+        fluidStacks.clear();
+    }
+
+    /**
+     * Checks if the FluidsHandler contains the specified FluidStack.
+     * Considers FluidStack amounts.
+     * @param fluidStack FluidStack to verify
+     * @return True if the FluidsHandler has sufficient FluidStack, false otherwise
+     */
+    public boolean containsFluid(FluidStack fluidStack) {
+        return fluidStacks.stream().anyMatch(stack -> stack.containsFluid(fluidStack));
+    }
+
+    /**
+     * Checks if the FluidsHandler contains all of the specified FluidStacks.
+     * Considers FluidStack amounts.
+     * @param fluidStacks List of FluidStacks to verify
+     * @return True if the FluidsHandler has sufficient FluidStacks, false otherwise
+     */
+    public boolean containsFluids(List<FluidStack> fluidStacks) {
+        return fluidStacks.stream().allMatch(this::containsFluid);
+    }
+
     public boolean isEmpty() {
         return fluidStacks.stream().allMatch(FluidStack::isEmpty);
     }
