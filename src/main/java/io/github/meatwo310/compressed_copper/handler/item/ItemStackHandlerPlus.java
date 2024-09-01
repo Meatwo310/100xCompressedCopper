@@ -1,4 +1,4 @@
-package io.github.meatwo310.compressed_copper.itemhandler;
+package io.github.meatwo310.compressed_copper.handler.item;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;

@@ -9,7 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.blockentity.MachineCoreBlockEntity;
 import io.github.meatwo310.compressed_copper.item.CompressableItem;
-import io.github.meatwo310.compressed_copper.itemhandler.ItemStackHandlerPlus;
+import io.github.meatwo310.compressed_copper.handler.item.ItemStackHandlerPlus;
 import io.github.meatwo310.compressed_copper.util.MathUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;

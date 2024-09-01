@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.github.meatwo310.compressed_copper.CompressedCopper;
 import io.github.meatwo310.compressed_copper.block.MachineCore;
 import io.github.meatwo310.compressed_copper.config.Config;
+import io.github.meatwo310.compressed_copper.handler.item.*;
 import io.github.meatwo310.compressed_copper.itemhandler.*;
 import io.github.meatwo310.compressed_copper.menu.MachineCoreMenu;
 import io.github.meatwo310.compressed_copper.recipe.CompressedMachineRecipe;
