@@ -26,7 +26,6 @@ public class Language {
             add("container." + CompressedCopper.MODID + ".machine_core", "Machine Core (No Module)");
             add("container." + CompressedCopper.MODID + ".machine_core.custom", "Machine (%s)");
             addItem(Items.COMPRESSED_COPPER, "Compressed Copper");
-            addItem(Items.MACHINE_COVER, "Machine Cover");
             addItem(Items.TEST_MODULE, "Test Module");
             addItem(Items.TEST_UPGRADE, "Test Upgrade");
             addBlock(Blocks.MACHINE_CORE, "Machine Core");
@@ -43,7 +42,6 @@ public class Language {
             add("container." + CompressedCopper.MODID + ".machine_core", "マシンコア(モジュール未設定)");
             add("container." + CompressedCopper.MODID + ".machine_core.custom", "マシン(%s)");
             addItem(Items.COMPRESSED_COPPER, "圧縮銅");
-            addItem(Items.MACHINE_COVER, "マシンカバー");
             addItem(Items.TEST_MODULE, "テストモジュール");
             addItem(Items.TEST_UPGRADE, "テストアップグレード");
             addBlock(Blocks.MACHINE_CORE, "マシンコア");

@@ -20,7 +20,6 @@ public class Items {
     public static final Map<String, RegistryObject<Item>> ITEM_MAP = new LinkedHashMap<>();
 
     public static final RegistryObject<Item> COMPRESSED_COPPER = addCompressable("compressed_copper");
-    public static final RegistryObject<Item> MACHINE_COVER = addCover("machine_cover");
     public static final RegistryObject<Item> TEST_MODULE = addModule("test_module");
     public static final RegistryObject<Item> TEST_UPGRADE = addUpgrade("test_upgrade");
 
@@ -43,10 +42,6 @@ public class Items {
         return item;
     }
 
-    private static RegistryObject<Item> addCover(String name) {
-        return addCompressable(name);
-    }
-
     private static RegistryObject<Item> addModule(String name) {
         var item = addCompressable(name);
         Blocks.addModuleBlock(name);
@@ -60,7 +55,6 @@ public class Items {
     protected static void addBlockItem(String name, Supplier<BlockItem> blockItemSupplier) {
         ITEM_MAP.put(name, ITEMS.register(name, blockItemSupplier));
     }
-
 
     public static void register(IEventBus modEventBus) {
         ITEMS.register(modEventBus);

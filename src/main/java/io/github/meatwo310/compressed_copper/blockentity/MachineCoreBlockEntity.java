@@ -37,17 +37,15 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     private static final Component TITLE =
             Component.translatable("container." + CompressedCopper.MODID + ".machine_core");
 
-    public static final int SLOT_INPUT = 0;
-    public static final int SLOT_OUTPUT = 4;
-    public static final int SLOT_COVER = 8;
-    public static final int SLOT_MODULE = 9;
-    public static final int SLOT_UPGRADE = 10;
-
     public static final int INPUT_SLOTS = 4;
     public static final int OUTPUT_SLOTS = 4;
-    public static final int COVER_SLOTS = 1;
     public static final int MODULE_SLOTS = 1;
     public static final int UPGRADE_SLOTS = 3;
+
+    public static final int SLOT_INPUT = 0;
+    public static final int SLOT_OUTPUT = SLOT_INPUT + INPUT_SLOTS;
+    public static final int SLOT_MODULE = SLOT_OUTPUT + OUTPUT_SLOTS;
+    public static final int SLOT_UPGRADE = SLOT_MODULE + MODULE_SLOTS;
 
     private final InputHandler input = new InputHandler(INPUT_SLOTS) {
         @Override
@@ -61,14 +59,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
-        }
-    };
-    private final CoverHandler cover = new CoverHandler(COVER_SLOTS) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            super.onContentsChanged(slot);
-            setChanged();
-            setCustomName();
         }
     };
     private final ModuleHandler module = new ModuleHandler(MODULE_SLOTS) {
@@ -91,7 +81,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
 
     public final LazyOptional<InputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
     public final LazyOptional<OutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
-    public final LazyOptional<CoverHandler> coverLazyOptional = LazyOptional.of(() -> this.cover);
     public final LazyOptional<ModuleHandler> moduleLazyOptional = LazyOptional.of(() -> this.module);
     public final LazyOptional<UpgradeHandler> upgradeLazyOptional = LazyOptional.of(() -> this.upgrade);
     public final LazyOptional<ProcessingHandler> processingInputLazyOptional;
@@ -178,9 +167,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         if (data.contains("output")) this.outputLazyOptional.ifPresent(handler ->
                 handler.deserializeNBT(data.getCompound("output"))
         );
-        if (data.contains("cover")) this.coverLazyOptional.ifPresent(handler ->
-                handler.deserializeNBT(data.getCompound("cover"))
-        );
         if (data.contains("module")) this.moduleLazyOptional.ifPresent(handler ->
                 handler.deserializeNBT(data.getCompound("module"))
         );
@@ -208,9 +194,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         this.outputLazyOptional.ifPresent(handler -> {
             if (!handler.isEmpty()) data.put("output", handler.serializeNBT());
         });
-        this.coverLazyOptional.ifPresent(handler -> {
-            if (!handler.isEmpty()) data.put("cover", handler.serializeNBT());
-        });
         this.moduleLazyOptional.ifPresent(handler -> {
             if (!handler.isEmpty()) data.put("module", handler.serializeNBT());
         });
@@ -233,7 +216,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public void setRemoved() {
         this.inputLazyOptional.invalidate();
         this.outputLazyOptional.invalidate();
-        this.coverLazyOptional.invalidate();
         this.moduleLazyOptional.invalidate();
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
@@ -253,7 +235,6 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
         super.invalidateCaps();
         this.inputLazyOptional.invalidate();
         this.outputLazyOptional.invalidate();
-        this.coverLazyOptional.invalidate();
         this.moduleLazyOptional.invalidate();
         this.upgradeLazyOptional.invalidate();
         this.processingInputLazyOptional.invalidate();
@@ -261,10 +242,9 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     public void setCustomName() {
-        if (!coverLazyOptional.isPresent() || !moduleLazyOptional.isPresent()) return;
-        ItemStack casing = coverLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
+        if (!moduleLazyOptional.isPresent()) return;
         ItemStack module = moduleLazyOptional.orElseThrow(NullPointerException::new).getStackInSlot(0);
-        customName = casing.isEmpty() || module.isEmpty() ? TITLE : Component.translatable(
+        customName = module.isEmpty() ? TITLE : Component.translatable(
                 "container." + CompressedCopper.MODID + ".machine_core.custom",
                 module.getHoverName()
         );
@@ -315,14 +295,12 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private Optional<CompressedMachineRecipe> getValidRecipe() {
-        SimpleContainer container = new SimpleContainer(INPUT_SLOTS + OUTPUT_SLOTS + COVER_SLOTS + MODULE_SLOTS + UPGRADE_SLOTS);
+        SimpleContainer container = new SimpleContainer(INPUT_SLOTS + OUTPUT_SLOTS + MODULE_SLOTS + UPGRADE_SLOTS);
 
         for (int i = 0; i < INPUT_SLOTS; i++)
             container.setItem(SLOT_INPUT + i, this.input.getStackInSlot(i));
         for (int i = 0; i < OUTPUT_SLOTS; i++)
             container.setItem(SLOT_OUTPUT + i, this.output.getStackInSlot(i));
-        for (int i = 0; i < COVER_SLOTS; i++)
-            container.setItem(SLOT_COVER + i, this.cover.getStackInSlot(i));
         for (int i = 0; i < MODULE_SLOTS; i++)
             container.setItem(SLOT_MODULE + i, this.module.getStackInSlot(i));
         for (int i = 0; i < UPGRADE_SLOTS; i++)

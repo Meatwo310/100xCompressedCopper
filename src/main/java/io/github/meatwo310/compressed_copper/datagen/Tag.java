@@ -50,9 +50,7 @@ public class Tag {
         @Override
         protected void addTags(@NotNull HolderLookup.Provider provider) {
             Items.ITEM_MAP.forEach((name, item) -> {
-                if (name.matches(".*_cover"))
-                    this.tag(ItemTags.COVERS).add(item.get());
-                else if (name.matches(".*_module"))
+                if (name.matches(".*_module"))
                     this.tag(ItemTags.MODULES).add(item.get());
                 else if (name.matches(".*_upgrade"))
                     this.tag(ItemTags.UPGRADES).add(item.get());
