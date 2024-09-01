@@ -152,8 +152,10 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
         if (cap != ForgeCapabilities.ITEM_HANDLER) return super.getCapability(cap, side);
-        if (side == Direction.DOWN) return this.outputLazyOptional.cast();
-        return this.inputLazyOptional.cast();
+        return LazyOptional.of(() -> new IOHandler(
+                inputLazyOptional.orElse(new InputHandler(INPUT_SLOTS)),
+                outputLazyOptional.orElse(new OutputHandler(OUTPUT_SLOTS))
+        )).cast();
     }
 
     @Override
