@@ -47,14 +47,14 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     public static final int SLOT_MODULE = SLOT_OUTPUT + OUTPUT_SLOTS;
     public static final int SLOT_UPGRADE = SLOT_MODULE + MODULE_SLOTS;
 
-    private final InputHandler input = new InputHandler(INPUT_SLOTS) {
+    private final ItemInputHandler input = new ItemInputHandler(INPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
             setChanged();
         }
     };
-    private final OutputHandler output = new OutputHandler(OUTPUT_SLOTS) {
+    private final ItemOutputHandler output = new ItemOutputHandler(OUTPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -79,8 +79,8 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     private final ProcessingHandler processingInput;
     private final ProcessingHandler processingOutput;
 
-    public final LazyOptional<InputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
-    public final LazyOptional<OutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
+    public final LazyOptional<ItemInputHandler> inputLazyOptional = LazyOptional.of(() -> this.input);
+    public final LazyOptional<ItemOutputHandler> outputLazyOptional = LazyOptional.of(() -> this.output);
     public final LazyOptional<ModuleHandler> moduleLazyOptional = LazyOptional.of(() -> this.module);
     public final LazyOptional<UpgradeHandler> upgradeLazyOptional = LazyOptional.of(() -> this.upgrade);
     public final LazyOptional<ProcessingHandler> processingInputLazyOptional;
@@ -152,9 +152,9 @@ public class MachineCoreBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
         if (cap != ForgeCapabilities.ITEM_HANDLER) return super.getCapability(cap, side);
-        return LazyOptional.of(() -> new IOHandler(
-                inputLazyOptional.orElse(new InputHandler(INPUT_SLOTS)),
-                outputLazyOptional.orElse(new OutputHandler(OUTPUT_SLOTS))
+        return LazyOptional.of(() -> new ItemIOHandler(
+                inputLazyOptional.orElse(new ItemInputHandler(INPUT_SLOTS)),
+                outputLazyOptional.orElse(new ItemOutputHandler(OUTPUT_SLOTS))
         )).cast();
     }
 

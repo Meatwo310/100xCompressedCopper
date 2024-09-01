@@ -8,35 +8,35 @@ import org.jetbrains.annotations.NotNull;
  * Manages item input and output for the machine.
  * Inputs are redirected to the InputHandler, and outputs are redirected to the OutputHandler.
  */
-public class IOHandler implements IItemHandler {
-    private final InputHandler inputHandler;
-    private final OutputHandler outputHandler;
+public class ItemIOHandler implements IItemHandler {
+    private final ItemInputHandler itemInputHandler;
+    private final ItemOutputHandler itemOutputHandler;
 
-    public IOHandler(InputHandler inputHandler, OutputHandler outputHandler) {
-        this.inputHandler = inputHandler;
-        this.outputHandler = outputHandler;
+    public ItemIOHandler(ItemInputHandler itemInputHandler, ItemOutputHandler itemOutputHandler) {
+        this.itemInputHandler = itemInputHandler;
+        this.itemOutputHandler = itemOutputHandler;
     }
 
     @Override
     public int getSlots() {
-        return inputHandler.getSlots() + outputHandler.getSlots();
+        return itemInputHandler.getSlots() + itemOutputHandler.getSlots();
     }
 
     @Override
     public @NotNull ItemStack getStackInSlot(int slot) {
         if (isWrongSlot(slot)) return ItemStack.EMPTY;
-        if (slot < inputHandler.getSlots()) {
-            return inputHandler.getStackInSlot(slot);
+        if (slot < itemInputHandler.getSlots()) {
+            return itemInputHandler.getStackInSlot(slot);
         } else {
-            return outputHandler.getStackInSlot(slot - inputHandler.getSlots());
+            return itemOutputHandler.getStackInSlot(slot - itemInputHandler.getSlots());
         }
     }
 
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack itemStack, boolean simulate) {
         if (isWrongSlot(slot)) return itemStack;
-        if (slot < inputHandler.getSlots()) {
-            return inputHandler.insertItem(slot, itemStack, simulate);
+        if (slot < itemInputHandler.getSlots()) {
+            return itemInputHandler.insertItem(slot, itemStack, simulate);
         } else {
             return itemStack;
         }
@@ -45,25 +45,25 @@ public class IOHandler implements IItemHandler {
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (isWrongSlot(slot)) return ItemStack.EMPTY;
-        if (slot < inputHandler.getSlots()) {
+        if (slot < itemInputHandler.getSlots()) {
             return ItemStack.EMPTY;
         } else {
-            return outputHandler.extractItem(slot - inputHandler.getSlots(), amount, simulate);
+            return itemOutputHandler.extractItem(slot - itemInputHandler.getSlots(), amount, simulate);
         }
     }
 
     @Override
     public int getSlotLimit(int slot) {
-        return inputHandler.getSlotLimit(0);
+        return itemInputHandler.getSlotLimit(0);
     }
 
     @Override
     public boolean isItemValid(int slot, @NotNull ItemStack itemStack) {
         if (isWrongSlot(slot)) return false;
-        if (slot < inputHandler.getSlots()) {
-            return inputHandler.isItemValid(slot, itemStack);
+        if (slot < itemInputHandler.getSlots()) {
+            return itemInputHandler.isItemValid(slot, itemStack);
         } else {
-            return outputHandler.isItemValid(slot - inputHandler.getSlots(), itemStack);
+            return itemOutputHandler.isItemValid(slot - itemInputHandler.getSlots(), itemStack);
         }
     }
 
